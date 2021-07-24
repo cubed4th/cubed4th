@@ -1,0 +1,25 @@
++   ( n1 n2 - sum )     Add. "plus"
+D+  ( d1 d2 - sum ) dd double-precision numbers. "d-plus"
+-   ( n1 n2 - diff )    Subtract (n1-n2). "minus"
+1+  ( n - n + 1 )   Add 1 to top number. "one-plus"
+1-  ( n- n - )  Subtract 1 from top number. "one-minus"
+2+  ( n- n + 2 )    Add 2 to top number. "two-plus"
+2-  ( n - n - 2 )   Subtract 2 from top number. "two-minus"
+*   ( n1 n2 - prod )    Multiply. "times"
+/   ( n1 n2 - quot )    Divide (n1/n2). (Quotient rounded toward zero) "divide"
+MOD ( n1 n2 - rem ) Modulo (i.e., remainder from division n1/n2). Remainder has same sign as n1. "mod"
+/MOD    ( n1 n2 - rem quot )    Divide, giving remainder and quotient. "divide-mod"
+*/MOD   ( n1 n2 n3 - rem quot ) Multiply, then divide (n1*n2/n3), with double-precision intermediate. "times-divide-mod"
+*/  ( n1 n2 n3 - quot ) Like */MOD, but give quotient only, rounded towards zero. "times-divide"
+U*  ( un1 un2 - ud )    Multiply unsigned numbers, leaving unsigned double-precision result. "U-times"
+U/MOD   ( ud un - urem uquot)   Divide double number by single giving, remainder and quotient, all unsigned. "U-divide-mod"
+MAX ( n1 n2 - max ) Leave greater of two numbers. "max"
+MIN ( n1 n2 - min ) Leave lessor of two numbers. "min"
+ABS ( n - 1 n 1 )   Absolute value. "absolute"
+NEGATE  ( n - - n ) Leave two's complement.
+DNEGATE ( d - - d ) Leave two's complement of double-precision number. "D-negate"
+AND ( n1 n2 - and )     Bitwise logical AND
+OR  ( n1 n2 - or )  Bitwise logical OR
+XOP ( n1 n2 - xor ) Bitwise logical exclusive-OR. "x-or"
+
+

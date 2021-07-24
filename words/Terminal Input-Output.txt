@@ -1,0 +1,12 @@
+CR  ( - )   Do a carrage return and line feed. "c-r"
+EMIT    ( char - )  Type ascii value from stack
+SPACE   ( - )   Type one space
+SPACES  ( n - ) Type n spaces, if n>0
+TYPE    ( addr n - )    Type string of characters beginning at addr. If n>0.
+COUNT   ( addr - addr+1 n ) Change address of string (prefix by length byte at addr) to TYPE form.
+ -TRAILING  ( addr n 1 - addr n2 )  Reduce character count of string at addr to omit trailing blanks. "dash- Trailing)
+KEY ( - char )  Read key and leave ascii value on stack.
+EXPECT  ( addr n - )    Read n characters (or until carriage return) from terminal to address, with null(s) at end.
+QUERY   ( - )   Read line of up to 80 characters from terminal to input buffer.
+WORD    ( char - addr ) Read next word from inoput stream using char as delimiter, or until null. Leave addr of length byte.
+

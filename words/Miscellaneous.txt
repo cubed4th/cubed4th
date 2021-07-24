@@ -1,0 +1,8 @@
+(   ( - )   Begin comment, terminated by ) on same line or screen; space after (. "paren", "close- paren"
+HERE    ( - addr )  Leave address of next available dictionary location.
+PAD ( - addr )  Leave address of scratch area at least 64 bytes.
+>IN ( - addr )  System variable containing character offset into input buffer, used, e.g., by WORD. "to-in"
+BLK ( - addr )  System variable containing block number currently being interpreted, or 0 if from terminal "b-like"
+ABORT   ( - )   Clear data and refund stacks, set execution mode, return control to terminal.
+QUIT    ( - )   Like ABORT, except does not clear data stack or print any message.
+79-STANDARD ( - )   Verify that system conforms to FORTH-79 Standard.

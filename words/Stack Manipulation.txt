@@ -1,0 +1,14 @@
+DUP ( n - n n ) Duplicate top of stack
+DROP    ( n - ) Discard Top of Stack
+SWAP    ( n1 n2 - n2 n1 )   Exchange top two stack items
+OVER    ( n1 n2 - n1 n2 n1 )    Make a copy of second item on top
+ROT ( n1 n2 n3 - n2 n3 n1 ) Rotate third item to top "rote"
+PICK    ( n1 - n2 ) Copy n1-th item to top (thus 1 PICK = DUP, 2 PICK = OVER)
+ROLL    (n - )  Rotate the n1 - th item to top (thus 2 ROLL = SWAP, 3 ROLL =
+ROT
+?DUP    ( n - n (n) )   Dupliicate only if non-zero. "query-dup"
+>R  ( n - ) Move top item to "return stack" for temporary storage (use caution). "to-r"
+R>  ( - n ) Retrieve item from return stack. "r-from"
+R@  ( - n ) Copy top of return stack onto stack. "r-fetch"
+DEPTH   ( - n ) Count number of items in stack
+

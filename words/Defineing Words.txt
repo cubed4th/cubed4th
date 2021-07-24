@@ -1,0 +1,7 @@
+: xxx   ( - )   Begin colon definition of xxx. "colon"
+;   ( - )   End colon definition. "semi-colon"
+VARIABLE xxx    ( - ) xxx ( - addr )    Create a two-byte variable names xxx : returns address when executed.
+CONSTANT xxx    ( n - ) xxx: ( - n )    Create a constant named xxx with value n: returns value when executed.
+VOCABULARY xxx  ( - )   Create a vocabulary named xxx : becomes CONTEXT vocabulary when executed.
+CREATE . DOES>  does: ( - addr )    Used to create a new defining word, with execution-time routine in high-level FORTH. "does"
+
