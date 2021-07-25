@@ -22,7 +22,7 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 """  # __banner__
 
-__version__ = "1.1.20210724132000"
+__version__ = "1.1.20210725000000"
 
 class IDE:  # { The p-unity IDE: Intergrated Development Environment }
     def __init__(self, run=None, **kwargs):

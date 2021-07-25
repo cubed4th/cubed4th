@@ -45,6 +45,7 @@ setuptools.setup(
     url="https://github.com/sno-ware/cubed4th",
     packages=setuptools.find_packages(),
     install_requires=[
+        "simplejson"
     ],
     entry_points={"console_scripts": ["c4=cubed4th.cli_FORTH:ide_stdio"]},
     classifiers=[
