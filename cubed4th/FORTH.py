@@ -22,8 +22,8 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 """  # __banner__
 
-
 class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
+
     def __init__(self, run=None, run_tests=2, **kwargs):
 
         self.root = TASK(self, root=True)
@@ -33,16 +33,25 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         for digit in "#$%-01234567890":
             self.digits[digit] = True
 
-        def load(self, names):
+        vis = None if 'vis' not in kwargs else kwargs['vis']
+
+        def load(self, vis, names):
             for name in names.split(" "):
                 exec(f"from .WORDS import F_{name}")
                 exec(f"self.{name} = F_{name}.LIB(self, self.root)")
-                exec(f"self.import_lib(self.{name})")
+                exec(f"if vis: vis.before_import('{name}', self.{name})")
+                exec(f"self.import_lib(vis, self.{name})")
+                exec(f"if vis: vis.after_import('{name}', self.{name})")
 
-        load(self, "CORE STACK MATH CONTROL")
-        load(self, "INPUT OUTPUT REPL")
-        load(self, "OBJECT JSON")
-        load(self, "UNICODE CURSES")
+        if vis: vis.before_imports()
+
+        load(self, vis, "CORE STACK MATH CONTROL")
+        load(self, vis, "INPUT OUTPUT REPL")
+        load(self, vis, "OBJECT JSON")
+        load(self, vis, "UNICODE CURSES")
+
+        if vis: vis.after_imports()
+
 
         for level in [1, 2, 3]:
             if run_tests < level:
@@ -136,6 +145,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
         where.tests[1].append(code.__doc__)
 
+        return name
+
     def add_sigil(self, name, code, where=None):
         parts = name.lower().split("_")
 
@@ -169,7 +180,9 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
         where.tests[1].append(code.__doc__)
 
-    def import_lib(self, source, where=None):
+        return name
+
+    def import_lib(self, vis, source, where=None):
         word_names = []
         sigil_names = []
         for fname in dir(source):
@@ -183,15 +196,37 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
                 sigil = getattr(source, fname)
                 sigil_names.append((sigil.__code__.co_firstlineno, fname))
 
+        def full2short(fname):
+            parts = fname.split("_")
+            name = []
+            meta = None
+            for part in parts:
+                if meta is None:
+                    if part == "":
+                        meta = []
+                        continue
+                else:
+                    meta.append(part)
+                    continue
+
+                name.append(part)
+
+            return "_".join(name)
+
         sigil_names.sort()
         for order, fname in sigil_names:
             code = getattr(source, fname)
-            self.add_sigil(fname[6:], code)
+            sname = self.add_sigil(fname[6:], code)
+            if not vis: continue
+            vis.visit_sigil(code, fname, full2short(fname)[6:], sname)
 
         word_names.sort()
         for order, fname in word_names:
             code = getattr(source, fname)
-            self.add_word(fname[5:], code)
+            wname = self.add_word(fname[5:], code)
+            if not vis: continue
+            vis.visit_word(code, fname, full2short(fname)[5:], wname)
+
 
         if not where:
             where = self.root
