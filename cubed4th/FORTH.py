@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
        ______    ____    _____    _______   _    _     /\   ____
   _   |  ____|  / __ \  |  __ \  |__   __| | |  | |   |/\| |___ \    _
@@ -24,7 +24,7 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
-    def __init__(self, run=None, run_tests=2, **kwargs):
+    def __init__(self, run=None, run_tests=1, sandbox=1, **kwargs):
 
         self.root = TASK(self, root=True)
         self.call = CALL(self)
@@ -36,21 +36,27 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         vis = None if 'vis' not in kwargs else kwargs['vis']
 
         def load(self, vis, names):
-            for name in names.split(" "):
+            for name_level in names.split(" "):
+                name, level = tuple(name_level.split(":"))
+                if sandbox > 0 and sandbox < int(level): continue
                 exec(f"from .WORDS import F_{name}")
                 exec(f"self.{name} = F_{name}.LIB(self, self.root)")
                 exec(f"if vis: vis.before_import('{name}', self.{name})")
                 exec(f"self.import_lib(vis, self.{name})")
                 exec(f"if vis: vis.after_import('{name}', self.{name})")
 
-        if vis: vis.before_imports()
+        if vis: vis.before_imports(self)
 
-        load(self, vis, "CORE STACK MATH CONTROL")
-        load(self, vis, "INPUT OUTPUT REPL")
-        load(self, vis, "OBJECT JSON")
-        load(self, vis, "UNICODE CURSES")
+        # The :num indicates what level of sandbox applies to all words
 
-        if vis: vis.after_imports()
+        load(self, vis, "CORE:1 STACK:1 MATH:1 CONTROL:1")
+        load(self, vis, "INPUT:3 OUTPUT:3 REPL:1")
+        load(self, vis, "OBJECT:1 JSON:1")
+        load(self, vis, "UNICODE:3 CURSES:6")
+
+        load(self, vis, "ECDSA:1 HASHES:1 CHAINS:1")
+
+        if vis: vis.after_imports(self)
 
 
         for level in [1, 2, 3]:
@@ -216,16 +222,16 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         sigil_names.sort()
         for order, fname in sigil_names:
             code = getattr(source, fname)
-            sname = self.add_sigil(fname[6:], code)
+            tname = self.add_sigil(fname[6:], code)
             if not vis: continue
-            vis.visit_sigil(code, fname, full2short(fname)[6:], sname)
+            vis.visit_sigil(code, fname, full2short(fname)[6:], tname)
 
         word_names.sort()
         for order, fname in word_names:
             code = getattr(source, fname)
-            wname = self.add_word(fname[5:], code)
+            tname = self.add_word(fname[5:], code)
             if not vis: continue
-            vis.visit_word(code, fname, full2short(fname)[5:], wname)
+            vis.visit_word(code, fname, full2short(fname)[5:], tname)
 
 
         if not where:
@@ -392,6 +398,9 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
                 if line == "" or line[0] in ["#"]:
                     continue
 
+                if line == "--END--":
+                    break
+
                 f_count = task.test["f"]
                 if 1:  # try:
 
@@ -477,6 +486,7 @@ class CALL:
         self.depth = 0
         self.stack = []
         self.EXIT = False
+        self.FAIL = False
 
     def find_struct(self, name, key="?"):
         call = self
@@ -526,14 +536,14 @@ T{ 0.1 0.2 + -> 0.3 }T
 
 # T{ ("--") (.__len__) -> ("--") #2 }T
 
-( : IDE
-CURSES
-0 0 20 20 WINDOW BORDER REFRESH
-GETKEY
-; )
+# ( : IDE
+# CURSES
+# 0 0 20 20 WINDOW BORDER REFRESH
+# GETKEY
+# ; )
 
-: COUNTDOWN    ( n --)
-               BEGIN  CR   DUP  .  1 -   DUP   0  =   UNTIL  DROP  ;
+# : COUNTDOWN    ( n --)
+#                BEGIN  CR   DUP  .  1 -   DUP   0  =   UNTIL  DROP  ;
 
 # 5 COUNTDOWN
 
