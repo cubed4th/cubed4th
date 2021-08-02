@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _      _____    ______   _____    _
   /\| |/\  |  __ \  |  ____| |  __ \  | |
@@ -47,12 +47,18 @@ class LIB:  # { By the Power of Introspection : words }
             words[name] = True
         for name in t.words.keys():
             words[name] = True
+        words = sorted(words)
+        print("%s ( %i words; see also: sigils )" % (" ".join(words), len(words)))
+
+    @staticmethod  ### SIGILS ###
+    def word_SIGILS(e, t, c):
+        words = {}
         for name in e.root.sigils.keys():
             words[name] = True
         for name in t.sigils.keys():
             words[name] = True
         words = sorted(words)
-        print(" ".join(words))
+        print("%s ( %i sigils; see also: words )" % (" ".join(words), len(words)))
 
     @staticmethod  ### SEE ###
     def word_SEE(e, t, c):

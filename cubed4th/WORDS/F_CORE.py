@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _       _____    ____    _____    ______
   /\| |/\   / ____|  / __ \  |  __ \  |  ____|
@@ -69,6 +69,12 @@ class LIB:  # { CORE : words }
         block = c.stack[-1]
         block["HAVE"] = t.stack[len(block["STACK"]) :]
         t.stack = copy.deepcopy(block["STACK"])
+
+    @staticmethod  ### --END-- ###
+    def word_minus_minus_END_minus_minus__R(e, t, c):
+        #block = c.stack[-1]
+        #block["END"] = True
+        pass
 
     @staticmethod  ### }T ###
     def word_rbrace_T(e, t, c):
@@ -689,29 +695,29 @@ class LIB:  # { CORE : words }
     def word_rangle_BODY__R_x(e, t, c, x):
         t.stack.append(x[0][0])
 
-    @staticmethod  ### ' ###
-    def word_tick__R_x(e, t, c):
-        t.state = LIB.state_tick
-
-    @staticmethod
-    def state_tick(e, t, c, token):
-        token_l = token.lower() if isinstance(token, str) else str
-
-        if token_l in t.words:
-            code = t.words[token_l]
-            argc = t.word_argc.get(token_l, 0)
-        elif token_l in e.root.words:
-            code = e.root.words[token_l]
-            argc = e.root.word_argc.get(token_l, 0)
-        else:
-            e.raise_RuntimeError("{token_l}: error (-0): Word Not Found By [']")
-
-        if callable(code):
-            t.stack.append((code, argc))
-        else:
-            t.stack.append(code)
-
-        t.state = e.state_INTERPRET
+    # @staticmethod  ### ' ###
+    # def word_tick__R_x(e, t, c):
+    #     t.state = LIB.state_tick
+    #
+    # @staticmethod
+    # def state_tick(e, t, c, token):
+    #     token_l = token.lower() if isinstance(token, str) else str
+    #
+    #     if token_l in t.words:
+    #         code = t.words[token_l]
+    #         argc = t.word_argc.get(token_l, 0)
+    #     elif token_l in e.root.words:
+    #         code = e.root.words[token_l]
+    #         argc = e.root.word_argc.get(token_l, 0)
+    #     else:
+    #         e.raise_RuntimeError("{token_l}: error (-0): Word Not Found By [']")
+    #
+    #     if callable(code):
+    #         t.stack.append((code, argc))
+    #     else:
+    #         t.stack.append(code)
+    #
+    #     t.state = e.state_INTERPRET
 
     @staticmethod  ### FIND ###
     def word_FIND(e, t, c, word):

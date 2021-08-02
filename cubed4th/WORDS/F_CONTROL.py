@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _       _____    ____    _   _   _______   _____     ____    _
   /\| |/\   / ____|  / __ \  | \ | | |__   __| |  __ \   / __ \  | |
@@ -58,7 +58,7 @@ class LIB:  # { Control Flow : words }
         c.EXIT = True
 
     @staticmethod  ### V ###
-    def word_V__R_x(e, t, c):
+    def word_V__2R_x(e, t, c):
         call = c
         while call:
             for index in range(-1, (len(call.stack) * -1) - 1, -1):
