@@ -38,7 +38,7 @@ class LIB:  # { The Object ABI : words }
         t.c_wallet = None
         t.c_wallets = {}
 
-        t.c_testnet = True
+        t.c_testnet = False
 
     @staticmethod  ### C-VERIFY  ###
     def word_C_minus_VERIFY__R(e, t, c, x1):
@@ -77,13 +77,11 @@ class LIB:  # { The Object ABI : words }
 
     @staticmethod  ### C-PRIV2ADDR  ###
     def word_C_minus_PRIV2ADDR__R_z2(e, t, c, z1):
-        from cryptos import privkey_to_address
-        return (privkey_to_address(z1),)
+        return (t.c_chain.privtoaddr(z1),)
 
     @staticmethod  ### C-PUB2ADDR  ###
     def word_C_minus_PUB2ADDR__R_z2(e, t, c, z1):
-        from cryptos import pubkey_to_address
-        return (pubkey_to_address(z1),)
+        return (t.c_chain.pubtoaddr(z1),)
 
     @staticmethod  ### C-IS-PRIVKEY  ###
     def word_C_minus_IS_minus_PRIVKEY__R_b(e, t, c, z):
