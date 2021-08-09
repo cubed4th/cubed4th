@@ -629,9 +629,9 @@ T{ 6 GD5 -> 234 }T
         e = FORTH.Engine(self.DEFINING_WORDS, **self.options)
         assert e.root.test["f"] == 0
 
-    DEFINING_WORDS = r""" """
+    XXXDEFINING_WORDS = r""" """
 
-    FIXME_DEFINING_WORDS = r"""
+    DEFINING_WORDS = r"""
 
 T{ 123 CONSTANT X123 -> }T
 T{ X123 -> 123 }T
@@ -649,7 +649,7 @@ T{ V1 @ -> 123 }T
 # T{ NOP NOP1 NOP NOP2 -> }T
 # T{ NOP1 -> }T
 # T{ NOP2 -> }T
-
+(
 T{ : DOES1 DOES> @ 1 + ; -> }T
 T{ : DOES2 DOES> @ 2 + ; -> }T
 T{ CREATE CR1 -> }T
@@ -657,7 +657,7 @@ T{ CR1 -> HERE }T
 T{ ' CR1 >BODY -> HERE }T
 T{ 1 , -> }T
 T{ CR1 @ -> 1 }T
-
+)
 # TODO
 #
 # T{ DOES1 -> }T

@@ -20,11 +20,13 @@ __banner__ = r""" (
 
 
 
+
+
 """  # __banner__
 
 class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
-    def __init__(self, run=None, run_tests=1, sandbox=1, **kwargs):
+    def __init__(self, run=None, run_tests=1, sandbox=0, **kwargs):
 
         self.root = TASK(self, root=True)
         self.call = CALL(self)
@@ -54,10 +56,11 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         load(self, vis, "OBJECT:1 JSON:1")
         load(self, vis, "UNICODE:3 CURSES:6")
 
+        load(self, vis, "HTTPS:6")
+
         load(self, vis, "ECDSA:1 HASHES:1 CHAINS:1")
 
         if vis: vis.after_imports(self)
-
 
         for level in [1, 2, 3]:
             if run_tests < level:
@@ -424,7 +427,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.root.test["p"] += task.test["p"]
             self.root.test["f"] += task.test["f"]
 
-    def execute(self, lines):
+    def execute(self, lines, barriers=None):
+        include = False
         self.call.EXIT = False
         for line in lines.split("\n"):
             self.root.line += 1
@@ -432,6 +436,10 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             line = line.strip()
             if len(line) == 0 or line[0] in ["#"]:
                 continue
+            if barriers:
+                if line[0:3] == barriers[0:3]:
+                    include = ~include
+                if not include: continue
 
             self.call.tokens = line.split()
             while len(self.call.tokens):

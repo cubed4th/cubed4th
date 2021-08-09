@@ -20,6 +20,8 @@ __banner__ = r""" (
 # 1+ 1- 2+ 2- <TRUE> <FALSE>
 
 
+
+
 """  # __banner__
 
 
@@ -326,8 +328,6 @@ class LIB:  # { CORE : words }
             does = e.root.word_does[t.last_call]
 
         if len(does):
-            # comment = ["(", t.last_call, "does>", ")"]
-            # t.words[name] = [(t.here,)] + comment + does
             t.words[name] = [(t.here,)] + does
         else:
             t.words[name] = [(t.here,)]

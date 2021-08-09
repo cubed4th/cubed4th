@@ -20,6 +20,8 @@ __banner__ = r""" (
 
 
 
+
+
 """  # __banner__
 
 
@@ -48,6 +50,16 @@ class LIB:  # { Mathematical : words }
             return (x1 + [x2],)
 
         return (x1 + x2,)
+
+
+    @staticmethod  ### o! ###
+    def word_O_bang__R(e, t, c, x1, x2, x3):
+        r"""
+        T{ ({}) 'Value 'Key o! -> ({"Key":"Value"}) }T
+        """
+        x1[x3] = x2
+        return (x1,)
+
 
     @staticmethod  ### - ###
     def word_minus__R_x3(e, t, c, x1, x2):
