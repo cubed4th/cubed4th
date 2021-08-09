@@ -533,10 +533,14 @@ from decimal import Decimal
 
 __tests__ = {1: [], 2: [], 3: []}
 
-__tests__[3].append(
+__tests__[1].append(
     """
 
-T{ 0.1 0.2 + -> 0.3 }T
+T{ : GT1 123 ; -> }T
+T{ ' GT1 EXECUTE -> 123 }T
+T{ : GT2 ['] GT1 ; IMMEDIATE -> }T
+
+# T{ 0.1 0.2 + -> 0.3 }T
 
 # T{ 'FOO'BAR' -> (("FOO BAR")) }T
 

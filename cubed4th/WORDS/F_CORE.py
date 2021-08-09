@@ -695,29 +695,29 @@ class LIB:  # { CORE : words }
     def word_rangle_BODY__R_x(e, t, c, x):
         t.stack.append(x[0][0])
 
-    # @staticmethod  ### ' ###
-    # def word_tick__R_x(e, t, c):
-    #     t.state = LIB.state_tick
-    #
-    # @staticmethod
-    # def state_tick(e, t, c, token):
-    #     token_l = token.lower() if isinstance(token, str) else str
-    #
-    #     if token_l in t.words:
-    #         code = t.words[token_l]
-    #         argc = t.word_argc.get(token_l, 0)
-    #     elif token_l in e.root.words:
-    #         code = e.root.words[token_l]
-    #         argc = e.root.word_argc.get(token_l, 0)
-    #     else:
-    #         e.raise_RuntimeError("{token_l}: error (-0): Word Not Found By [']")
-    #
-    #     if callable(code):
-    #         t.stack.append((code, argc))
-    #     else:
-    #         t.stack.append(code)
-    #
-    #     t.state = e.state_INTERPRET
+    @staticmethod  ### ' ###
+    def word_tick__R_x(e, t, c):
+        t.state = LIB.state_tick
+
+    @staticmethod
+    def state_tick(e, t, c, token):
+        token_l = token.lower() if isinstance(token, str) else str
+
+        if token_l in t.words:
+            code = t.words[token_l]
+            argc = t.word_argc.get(token_l, 0)
+        elif token_l in e.root.words:
+            code = e.root.words[token_l]
+            argc = e.root.word_argc.get(token_l, 0)
+        else:
+            e.raise_RuntimeError("{token_l}: error (-0): Word Not Found By [']")
+
+        if callable(code):
+            t.stack.append((code, argc))
+        else:
+            t.stack.append(code)
+
+        t.state = e.state_INTERPRET
 
     @staticmethod  ### FIND ###
     def word_FIND(e, t, c, word):
