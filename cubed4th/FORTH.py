@@ -26,10 +26,16 @@ __banner__ = r""" (
 
 class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
-    def __init__(self, run=None, run_tests=1, sandbox=0, **kwargs):
+    def __init__(self, run=None, run_tests=1, **kwargs):
 
         self.root = TASK(self, root=True)
         self.call = CALL(self)
+
+        self.sandbox = kwargs.get('sandbox', 0)
+
+        self.guards = kwargs.get('guards', "")
+        if not run == None:
+            self.guards = "```"
 
         self.digits = {}
         for digit in "#$%-01234567890":
@@ -40,7 +46,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         def load(self, vis, names):
             for name_level in names.split(" "):
                 name, level = tuple(name_level.split(":"))
-                if sandbox > 0 and sandbox < int(level): continue
+                if self.sandbox > 0 and self.sandbox < int(level): continue
                 exec(f"from .WORDS import F_{name}")
                 exec(f"self.{name} = F_{name}.LIB(self, self.root)")
                 exec(f"if vis: vis.before_import('{name}', self.{name})")
@@ -428,8 +434,9 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.root.test["p"] += task.test["p"]
             self.root.test["f"] += task.test["f"]
 
-    def execute(self, lines, barriers=None):
-        include = False
+    def execute(self, lines, guards=""):
+        guards = self.guards if guards == "" else guards
+        include = True if guards == "" else False
         self.call.EXIT = False
         for line in lines.split("\n"):
             self.root.line += 1
@@ -437,10 +444,13 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             line = line.strip()
             if len(line) == 0 or line[0] in ["#"]:
                 continue
-            if barriers:
-                if line[0:3] == barriers[0:3]:
+
+            if not guards == "":
+                if line[0:3] == guards[0:3]:
                     include = ~include
-                if not include: continue
+                    continue
+
+            if not include: continue
 
             self.call.tokens = line.split()
             while len(self.call.tokens):

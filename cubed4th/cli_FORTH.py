@@ -87,7 +87,7 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
         e.add_word("EXIT()", S)
 
         if run:
-            e.execute(run)
+            e.execute(run, guards="```")
             return
 
         v = ["cubed4th " + __version__]
