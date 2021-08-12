@@ -62,7 +62,7 @@ class LIB:  # { Mathematical : words }
 
 
     @staticmethod  ### - ###
-    def word_minus__R_x3(e, t, c, x1, x2):
+    def word_m__R_x3(e, t, c, x1, x2):
         """
         T{ 1+0j 2+0j - -> -1+0j }T
         T{ ([1,2,3]) 2 - -> ([1,3]) }T
@@ -130,7 +130,7 @@ class LIB:  # { Mathematical : words }
         return (Decimal("Infinity"),)
 
     @staticmethod  ### -INF ###
-    def word_minus_INF__R_n(e, t, c):
+    def word_m_INF__R_n(e, t, c):
         """"""
         return (Decimal("-Infinity"),)
 

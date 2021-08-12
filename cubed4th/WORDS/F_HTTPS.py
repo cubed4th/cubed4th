@@ -35,58 +35,59 @@ class LIB:  #
     def __init__(self, e, t, **kwargs):
         t.h_data = {}
         t.h_params = {}
-        t.h_method = 'POST'
+        t.h_headers = {}
+        t.h_method = 'post'
         t.h_status = 0
         t.h_json = {}
         t.h_result = None
 
-    @staticmethod  ### H-STATUS  ###
-    def word_H_minus_STATUS__R_x1(e, t, c):
+    @staticmethod  ### H-METHOD  ###
+    def word_H_m_METHOD__R(e, t, c, s):
+        t.h_method = s.lower()
+
+    @staticmethod  ### H-GET-STATUS  ###
+    def word_H_m_GET_m_STATUS__R_x1(e, t, c):
         return (t.h_status,)
 
-    @staticmethod  ### H-METHOD  ###
-    def word_H_minus_METHOD__R(e, t, c, s):
-        t.h_method = s.upper()
+    @staticmethod  ### H-SET-HEADER  ###
+    def word_H_m_METHOD__R(e, t, c, s1, s2):
+        t.h_headers[s2] = s1
 
     @staticmethod  ### H-DATA  ###
-    def word_H_minus_DATA__R(e, t, c, x):
+    def word_H_m_DATA__R(e, t, c, x):
         import json
         t.h_data = json.dumps(x)
 
     @staticmethod  ### H-PARAMS  ###
-    def word_H_minus_PARAMS__R(e, t, c, x):
+    def word_H_m_PARAMS__R(e, t, c, x):
         t.h_params = x
 
     @staticmethod  ### H-JSON  ###
-    def word_H_minus_INCOMING__R_x(e, t, c):
+    def word_H_m_INCOMING__R_x(e, t, c):
         return (t.h_result.json(),)
 
     @staticmethod  ### H-REQUEST  ###
-    def word_H_minus_REQUEST__R(e, t, c, s1):
+    def word_H_m_REQUEST__R(e, t, c, s1):
+
+        import requests
 
         kw = {"data": t.h_data}
 
-        headers = {'Content-Type': 'application/json'}
-        proxies = {
-              # "http"  : "http://127.0.0.1:8888"
-            }
+        has_content_type = False
+        for k, v in t.h_headers:
+            if k.lower() == "content-type":
+                has_content_type = True
 
-        import requests
-        if t.h_method == "POST":
-            r = requests.post(s1, **kw, proxies=proxies, headers=headers)
-        elif t.h_method == "GET":
-            kw["params"] = t.h_params
-            r = requests.get(s1, **kw, proxies=proxies, headers=headers)
-        elif t.h_method == "PUT":
-            r = requests.put(s1, **kw, proxies=proxies, headers=headers)
-        elif t.h_method == "PATCH":
-            r = requests.patch(s1, **kw, proxies=proxies, headers=headers)
-        elif t.h_method == "DELETE":
-            r = requests.delete(s1, **kw, proxies=proxies, headers=headers)
-        else:
-            raise RuntimeError("H-TTP(S) not supported: %s" % (h.method))
+        kw["headers"] = copy.copy(t.h_headers)
+        if not has_content_type:
+            kw["headers"]["Content-Type"] = 'application/json'
 
-        t.h_status = r.status_code
-        t.h_result = r
+        assert t.h_method in ["post","get","put","patch","delete"]
+
+        method = t.h_method
+        exec(f"response = requests.{method}(s1, **kw)")
+
+        t.h_status = response.status_code
+        t.h_result = response
 
 

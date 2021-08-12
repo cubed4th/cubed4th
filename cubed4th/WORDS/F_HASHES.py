@@ -40,27 +40,27 @@ class LIB:  # { The Object ABI : words }
         t.h_algos = {}
 
     @staticmethod  ### H-DIGEST-SIZE  ###
-    def word_H_minus_DIGEST_minus_SIZE__R_n(e, t, c):
+    def word_H_m_DIGEST_m_SIZE__R_n(e, t, c):
         return (t.h_t.digest_size,)
 
     @staticmethod  ### H-BLOCK-SIZE  ###
-    def word_H_minus_BLOCK_minus_SIZE__R_n(e, t, c):
+    def word_H_m_BLOCK_m_SIZE__R_n(e, t, c):
         return (t.h_object.block_size,)
 
     @staticmethod  ### H-UPDATE ###
-    def word_H_minus_UPDATE__R(e, t, c, s1):
+    def word_H_m_UPDATE__R(e, t, c, s1):
         t.h_hash.update(s1.encode())
 
     @staticmethod  ### H-DIGEST ###
-    def word_H_minus_DIGEST__R(e, t, c):
+    def word_H_m_DIGEST__R(e, t, c):
         return (t.h_hash.hexdigest(),)
 
     @staticmethod  ### H-OBJECT ###
-    def word_H_minus_OBJECT__R_x(e, t, c):
+    def word_H_m_OBJECT__R_x(e, t, c):
         return (t.h_hash,)
 
     @staticmethod  ### H-SELECT ###
-    def word_H_minus_SELECT__R(e, t, c, x1):
+    def word_H_m_SELECT__R(e, t, c, x1):
 
         if not isinstance(x1, str):
             t.h_hash = x1

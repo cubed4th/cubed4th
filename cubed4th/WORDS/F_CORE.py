@@ -67,13 +67,13 @@ class LIB:  # { CORE : words }
         t.stack = stack
 
     @staticmethod  ### -> ###
-    def word_minus_rangle(e, t, c):
+    def word_m_rangle(e, t, c):
         block = c.stack[-1]
         block["HAVE"] = t.stack[len(block["STACK"]) :]
         t.stack = copy.deepcopy(block["STACK"])
 
     @staticmethod  ### --END-- ###
-    def word_minus_minus_END_minus_minus__R(e, t, c):
+    def word_m_minus_END_m_minus__R(e, t, c):
         #block = c.stack[-1]
         #block["END"] = True
         pass
@@ -552,6 +552,7 @@ class LIB:  # { CORE : words }
 
     @staticmethod  ### ' ###
     def sigil_tick(e, t, c, token, start=False):
+
         end = token[-1] == "'"
         if end:
             token = token[:-1]
@@ -566,7 +567,7 @@ class LIB:  # { CORE : words }
         return (n1 + 1,)
 
     @staticmethod  ### 1- ###
-    def word_1_minus__R_n2(e, t, c, n1):
+    def word_1_m__R_n2(e, t, c, n1):
         return (n1 - 1,)
 
     @staticmethod  ### 2+ ###
@@ -574,7 +575,7 @@ class LIB:  # { CORE : words }
         return (n1 + 2,)
 
     @staticmethod  ### 2- ###
-    def word_2_minus__R_n2(e, t, c, n1):
+    def word_2_m__R_n2(e, t, c, n1):
         return (n1 - 2,)
 
     @staticmethod  ### CELL+ ###

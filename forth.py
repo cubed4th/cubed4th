@@ -34,7 +34,6 @@ import cubed4th.cli_FORTH
 @click.option("-d", "--docs", default=None)
 def run(file, docs):
 
-
     if docs:
         import cubed4th.doc_FORTH
         doc = cubed4th.doc_FORTH.DOC()

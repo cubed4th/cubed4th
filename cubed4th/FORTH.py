@@ -94,6 +94,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         "under": "_",
         "tilde": "~",
         "minus": "-",
+        "m": "-",
         "plus": "+",
         "pipe": "|",
         "slash": "\\",

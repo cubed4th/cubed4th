@@ -41,47 +41,47 @@ class LIB:  #
         t.e_vkeys = {}
 
     @staticmethod  ### E-GENERATE  ###
-    def word_E_minus_GENERATE__R(e, t, c):
+    def word_E_m_GENERATE__R(e, t, c):
         from ecdsa import SigningKey
         sk = SigningKey.generate(curve=t.e_curve)
         t.e_skeys[t.e_cname] = sk
         t.e_vkeys[t.e_cname] = sk.verifying_key
 
     @staticmethod  ### E-SKEY-SAVE ###
-    def word_E_minus_SKEY_minus_SAVE__R_z(e, t, c):
+    def word_E_m_SKEY_m_SAVE__R_z(e, t, c):
         return (t.e_skeys[t.e_cname].to_pem(),)
 
     @staticmethod  ### E-SKEY-LOAD ###
-    def word_E_minus_SIGN__R(e, t, c, z1):
+    def word_E_m_SKEY_m_LOAD__R(e, t, c, z1):
         from ecdsa import SigningKey
         sk = SigningKey.from_pem(z1)
         t.e_skeys[t.e_cname] = sk
         t.e_vkeys[t.e_cname] = sk.verifying_key
 
     @staticmethod  ### E-VKEY-SAVE ###
-    def word_E_minus_SKEY_minus_SAVE__R_z(e, t, c):
+    def word_E_m_SKEY_m_SAVE__R_z(e, t, c):
         return (t.e_vkeys[t.e_cname].to_pem(),)
 
     @staticmethod  ### E-VKEY-LOAD ###
-    def word_E_minus_SIGN__R(e, t, c, z1):
+    def word_E_m_VKEY_m_LOAD__R(e, t, c, z1):
         from ecdsa import VerifyingKey
         vk = VerifyingKey.from_pem(z1)
         t.e_vkeys[t.e_cname] = vk
 
     @staticmethod  ### E-SIGN ###
-    def word_E_minus_SIGN__R_z2(e, t, c, z1):
+    def word_E_m_SIGN__R_z2(e, t, c, z1):
         return (t.e_skeys[t.e_cname].sign_deterministic(z1),)
 
     @staticmethod  ### E-SIGN-RANDOM ###
-    def word_E_minus_SIGN__R_z2(e, t, c, z1):
+    def word_E_m_SIGN_m_RANDOM__R_z2(e, t, c, z1):
         return (t.e_skeys[t.e_cname].sign(z1),)
 
     @staticmethod  ### E-VERIFY ###
-    def word_E_minus_SIGN__R_b(e, t, c, z1):
+    def word_E_m_VERIFY__R_b(e, t, c, z1):
         return (t.e_skeys[t.e_cname].verify(z1),)
 
     @staticmethod  ### E-SELECT  ###
-    def word_E_minus_SELECT__R(e, t, c, x1):
+    def word_E_m_SELECT__R(e, t, c, x1):
         """
 
         T{ -> }T

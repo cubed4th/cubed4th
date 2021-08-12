@@ -93,7 +93,7 @@ class LIB:  # { DATA Stack Manipulation : words }
         return None
 
     @staticmethod  ### DROP-ALL ###
-    def word_DROP_minus_ALL__R(e, t, c):
+    def word_DROP_m_ALL__R(e, t, c):
         # "T{ 1 2 DROP:ALL -> }T
         t.stack = []
 

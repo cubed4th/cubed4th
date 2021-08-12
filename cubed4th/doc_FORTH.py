@@ -31,14 +31,23 @@ class DOC:
 
     def magic(self):
 
-        std = self.standard_2012()
-
-        vis = MagicVistor(std)
-
         from .FORTH import Engine
-        e = Engine(vis=vis)
 
+        std = self.standard_2012()
+        v = MagicVistor(std)
+        e = Engine(vis=v)
 
+        import dis
+
+        for name in v.in_order:
+            print()
+            print()
+            print(name)
+            print(std.get(name, {}))
+            print(v.to_code[name].__code__.co_filename)
+            print(v.to_code[name].__code__.co_firstlineno)
+            print(v.to_code[name].__doc__)
+            #print(dir(v.to_code[name].__code__))
 
 
 
@@ -99,11 +108,12 @@ class MagicVistor:
 
         self.in_order = []
 
-        self.is_word = {}
         self.to_code = {}
         self.to_fname = {}
         self.to_sname = {}
         self.to_lname = {}  # the mapping to library name
+        self.is_sigil = {}
+        self.is_word = {}
 
     def before_imports(self, engine):
         pass
@@ -113,22 +123,24 @@ class MagicVistor:
         self.lcode = lcode
 
     def visit_sigil(self, code, fname, sname, tname):  # full, short, true
-        assert tname not in self.to_fname
+        assert tname not in self.is_sigil
+        self.is_sigil[tname] = True
 
         self.in_order.append(tname)
 
-        self.is_word[tname] = False
         self.to_code[tname] = code
         self.to_fname[tname] = fname
         self.to_sname[tname] = sname
         self.to_lname[tname] = self.lname
 
+
+
     def visit_word(self, code, fname, sname, tname):
-        assert tname not in self.to_fname
+        assert tname not in self.is_word
+        self.is_word[tname] = True
 
         self.in_order.append(tname)
 
-        self.is_word[tname] = True
         self.to_code[tname] = code
         self.to_fname[tname] = fname
         self.to_sname[tname] = sname
@@ -138,6 +150,8 @@ class MagicVistor:
         pass
 
     def after_imports(self, engine):
+
+        return
 
         sorted = copy.copy(self.in_order)
         sorted.sort()

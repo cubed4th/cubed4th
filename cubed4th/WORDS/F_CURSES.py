@@ -45,7 +45,7 @@ class LIB:  # { CURSES Text Interface : words }
         import curses
 
     @staticmethod  ### KEY-MAP ###
-    def word_KEY_minus_MAP__R_x(e, t, c):
+    def word_KEY_m_MAP__R_x(e, t, c):
         return (KEY_MAP,)
 
     @staticmethod  ### WINDOW ###

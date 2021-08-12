@@ -106,7 +106,7 @@ class LIB:  # { JavaScript Object Notation : words }
         t.state = e.JSON.state_JSON
 
     @staticmethod  ### JSON-SAVE ###
-    def word_JSON_minus_SAVE__R_s(e, t, c, x):
+    def word_JSON_m_SAVE__R_s(e, t, c, x):
         def encode(_):
             if isinstance(_, complex):
                 return {"__complex__": True, "real": _.real, "imag": _.imag}
@@ -120,7 +120,7 @@ class LIB:  # { JavaScript Object Notation : words }
         )
 
     @staticmethod  ### JSON-LOAD ###
-    def word_JSON_minus_LOAD__R_x(e, t, c, s):
+    def word_JSON_m_LOAD__R_x(e, t, c, s):
         def h(_):
             if "__complex__" in _:
                 return complex(_["real"], _["imag"])
