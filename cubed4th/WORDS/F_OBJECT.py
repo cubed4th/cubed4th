@@ -164,6 +164,10 @@ class LIB:  # { The Object ABI : words }
 
     @staticmethod  ### (. ###
     def sigil_lparen_dot(e, t, c, token, start=False):
+        """
+        T{ 'FOO (.__len__) -> 'FOO 3 }T
+        # T{ 'FOO (.replace 'O 'J ) -> 'FJJ }T
+        """
         end = token[-1] == ")"
         if end:
             token = token[:-1]
@@ -171,19 +175,26 @@ class LIB:  # { The Object ABI : words }
         start = True if t.state == e.state_INTERPRET else False
         if start:
             token = token[2:]
-            struct = {"?": "()", ".": token, "*": [], "**": {}, "r": t.state}
+            struct = {"?": "()", ".": token, "*": [], "**": {}, "r": t.state, "d":len(t.stack)}
             c.stack.append(struct)
             t.state = e.OBJECT.sigil_lparen_dot
         else:
             struct = c.stack[-1]
 
+        if not start and not end:
+            e.state_INTERPRET(e, t, c, token)
+
         if end:
             c.stack.pop()
+            #
+            args = t.stack[struct["d"]:]
+            args.extend(tuple(struct["*"]))
+            t.stack = t.stack[:struct["d"]]
+
+            kwargs = struct["**"]
 
             obj = t.stack[-1]
             code = getattr(obj, struct["."])
-            args = tuple(struct["*"])
-            kwargs = struct["**"]
             result = code(*args, **kwargs)
             if isinstance(result, tuple):
                 t.stack.extend(result)
@@ -192,3 +203,11 @@ class LIB:  # { The Object ABI : words }
 
             t.state = struct["r"]
             return
+
+
+
+
+
+
+
+

@@ -262,6 +262,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             return (False, None)
 
         token = token.replace("_", "")
+        if token in ["", "#", "$", "%"]:
+            return (False, None)
 
         base = t.base
         if token[0] == "#":
@@ -307,6 +309,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
                 e.raise_RuntimeError("!: error(-1): Unknown XT")
 
             return
+
+        if len(token) == 0: return
 
         token_l = token.lower() if isinstance(token, str) else token
 
@@ -438,12 +442,14 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         guards = self.guards if guards == "" else guards
         include = True if guards == "" else False
         self.call.EXIT = False
-        for line in lines.split("\n"):
+
+        lines = lines.split("\n")
+        while len(lines):
+
+            line = lines.pop(0)
+
             self.root.line += 1
             self.root.lines[self.root.line] = line
-            line = line.strip()
-            if len(line) == 0 or line[0] in ["#"]:
-                continue
 
             if not guards == "":
                 if line[0:3] == guards[0:3]:
@@ -452,12 +458,19 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
             if not include: continue
 
+            self.call.line = line
+            self.call.lines = lines
             self.call.tokens = line.split()
+            if len(self.call.tokens) == 0:
+                self.call.tokens.append("")
+
             while len(self.call.tokens):
                 token = self.call.tokens.pop(0)
                 self.root.state(self, self.root, self.call, token)
                 if self.call.EXIT:
-                    return
+                   return
+
+
 
 
 class TASK:

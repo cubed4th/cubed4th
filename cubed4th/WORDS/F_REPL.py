@@ -49,8 +49,20 @@ class LIB:  # { By the Power of Introspection : words }
             words[name] = True
         for name in t.words.keys():
             words[name] = True
+
         words = sorted(words)
-        print("%s ( %i words; see also: sigils )" % (" ".join(words), len(words)))
+        word_list1 = []
+        word_list2 = []
+        for word in words:
+            if len(word) > 4 and word[1] == '-':
+                word_list2.append(word)
+            else:
+                word_list1.append(word)
+
+        print(" ".join(word_list1))
+        print("")
+        print(" ".join(word_list2))
+        print("\n%i words; see also: sigils" % (len(words)))
 
     @staticmethod  ### SIGILS ###
     def word_SIGILS(e, t, c):
@@ -60,7 +72,7 @@ class LIB:  # { By the Power of Introspection : words }
         for name in t.sigils.keys():
             words[name] = True
         words = sorted(words)
-        print("%s ( %i sigils; see also: words )" % (" ".join(words), len(words)))
+        print("%s\n\n%i sigils; see also: words" % (" ".join(words), len(words)))
 
     @staticmethod  ### SEE ###
     def word_SEE(e, t, c):

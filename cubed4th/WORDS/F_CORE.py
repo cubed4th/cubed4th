@@ -18,6 +18,7 @@ __banner__ = r""" (
 # : ; ' ." ! @ @NONE CREATE HERE ALLOT
 # VARIABLE CONSTANT VALUE TO LOCALS| |
 # 1+ 1- 2+ 2- <TRUE> <FALSE>
+# .>> <<.
 
 
 
@@ -41,18 +42,11 @@ class LIB:  # { CORE : words }
 
     @staticmethod  ### \ ###
     def sigil_slash(e, t, c, token, start=False):
-        c.stack.append({"?": "SLASH", "LINE": t.line, "r": t.state})
-        t.state = LIB.state_slash
+        c.tokens = []
 
-    @staticmethod
-    def state_slash(e, t, c, token):
-        struct = c.stack[-1]
-        if struct["LINE"] == t.line:
-            return
-
-        c.stack.pop()
-        t.state = struct["r"]
-        t.state(e, t, c, token)
+    @staticmethod  ### # ###
+    def sigil_hash(e, t, c, token, start=False):
+        c.tokens = []
 
     @staticmethod  ### T{ ###
     def word_T_lbrace(e, t, c):
@@ -159,6 +153,9 @@ class LIB:  # { CORE : words }
     @staticmethod  ### = ###
     def word_equal__R_b(e, t, c, x1, x2):
         """
+
+
+
         T{  0  0 = -> <TRUE>  }T
         T{  1  1 = -> <TRUE>  }T
         T{ -1 -1 = -> <TRUE>  }T
@@ -240,6 +237,29 @@ class LIB:  # { CORE : words }
             c.stack.pop()
             print(" ".join(block[1]), end="")
             t.state = e.state_INTERPRET
+
+
+    @staticmethod  ### .>> ###
+    def word_dot_rangle_rangle(e, t, c):
+        c.stack.append({"m": "DOT_TRIANGLE", 1: []})
+        c.tokens = []
+        t.state = LIB.state_multi_line_string
+
+
+    @staticmethod
+    def state_multi_line_string(e, t, c, token):
+        end = token == "<<."
+        block = c.stack[-1]
+        if end:
+            c.stack.pop()
+            t.stack.append("\n".join(block[1]))
+            t.state = e.state_INTERPRET
+            return
+
+        # append the line verbatim and absorb all the tokens
+        block[1].append(c.line)
+        c.tokens = []
+
 
     @staticmethod  ### S" ###
     def word_S_quote(e, t, c):
@@ -778,7 +798,6 @@ class LIB:  # { CORE : words }
     @staticmethod  ### EX... ###
     def word_EX_dot_dot_dot__R(e, t, c, xt):
         LIB.word_EXECUTE__R(e, t, c, xt)
-
 
 import copy
 

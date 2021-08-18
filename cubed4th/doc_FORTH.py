@@ -39,27 +39,49 @@ class DOC:
 
         import dis
 
+        files = {}
+
         for name in v.in_order:
             print()
             print()
-            print(name)
-            print(std.get(name, {}))
-            print(v.to_code[name].__code__.co_filename)
-            print(v.to_code[name].__code__.co_firstlineno)
+            data = std.get(name, {})
+            if 'en' in data:
+                print(name, " == ", data["en"])
+            else:
+                print(name)
+
+            print()
+
             print(v.to_code[name].__doc__)
+
+            print()
+
+            fname = v.to_code[name].__code__.co_filename
+            if not fname in files:
+                files[fname] = ['']
+                for line in open(fname, 'r').readlines():
+                    files[fname].append(line.rstrip())
+
+            print(fname)
+
+            fline = v.to_code[name].__code__.co_firstlineno
+            for i in range(fline, fline + 2):
+                line = files[fname][i]
+                print(f'Line: {i} == ', line)
+
+
+
+
+            print()
             #print(dir(v.to_code[name].__code__))
 
-
-
         #e.execute("SEE /")
-
-
-
 
 
     def standard_2012(self):
 
         import simplejson as json
+        from bs4 import BeautifulSoup
 
         with open("books\\2012.json", "r") as f:
             std = json.loads(f.read())['wordSets']
@@ -68,31 +90,44 @@ class DOC:
 
         for k, v in std.items():
             for k1, v1 in v['words'].items():
-                help = []
+                help = {}
                 stack_plain = v1['stackEffect']['plain']
-                help.append(stack_plain.get('NBSP', ''))
-                text = v1['sections'].get('NBSP', {})
-                html = text.get('html', '').replace('\n', ' ')
-                html = html.replace("&lt;", "<")
-                html = html.replace("&gt;", ">")
-                for tag in ['em', 'strong', 'sub', 'p']:
-                    html = html.replace(f'<{tag}>', '')
-                    html = html.replace(f'</{tag}>', '')
+                help["effects"] = stack_plain.get('NBSP', '')
+                data = v1['sections'].get('NBSP', {})
 
-                for loop in range(0, 3):
-                    html = html.replace('  ', ' ')
+                html = data.get('html', '')
+                html = html.replace('<em>', '  ')
+                html = html.replace('</em>', '  ')
 
-                html = html.strip()
+                soup = BeautifulSoup(html, 'html.parser')
 
-                temp = stack_plain.get('NBSP', '')
-                if html[:len(temp)] == temp:
-                    html = html[len(temp):]
+                text = ''
+                for t in soup.find_all(text=True):
+                    text += '{} '.format(t)
 
-                html = html.strip()
+                text = text.strip()
+                for x in range(0, 10):
+                    text = text.replace("  ", " ")
 
-                help.append(html)
+                text = text.replace("\n ", "\n")
 
-                help.append(f"https://forth-standard.org/standard/{k}/{k1}")
+                text = text.replace("\n\n", "~~")
+                text = text.replace("\n", "")
+                text = text.replace("~~", "\n\n")
+
+                for o in ['n', 'x', 'u']:
+                    for i in ['1', '2', '3', '4']:
+                        text = text.replace(f"{o} {i}", f"{o}{i}")
+
+                lines = text.split('\n')
+                lines = lines[4:]
+                text = '\n'.join(lines)
+
+                help["text"] = text
+
+                help["url"] = f"https://forth-standard.org/standard/{k}/{k1}"
+
+                help["en"] = v1.get('english', None)
 
                 all_help[v1['name'].lower()] = help
 
