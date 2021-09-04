@@ -452,7 +452,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.root.lines[self.root.line] = line
 
             if not guards == "":
-                if line[0:3] == guards[0:3]:
+                if line.lstrip()[0:3] == guards[0:3]:
                     include = ~include
                     continue
 

@@ -50,7 +50,7 @@ class LIB:  #
         return (t.h_status,)
 
     @staticmethod  ### H-SET-HEADER  ###
-    def word_H_m_METHOD__R(e, t, c, s1, s2):
+    def word_H_m_SET_m_METHOD__R(e, t, c, s1, s2):
         t.h_headers[s2] = s1
 
     @staticmethod  ### H-DATA  ###
@@ -84,10 +84,18 @@ class LIB:  #
 
         assert t.h_method in ["post","get","put","patch","delete"]
 
-        method = t.h_method
-        exec(f"response = requests.{method}(s1, **kw)")
+        if t.h_method == 'post':
+            response = requests.post(s1, **kw)
+        elif t.h_method == 'get':
+            response = requests.get(s1, **kw)
+        elif t.h_method == 'put':
+            response = requests.put(s1, **kw)
+        elif t.h_method == 'patch':
+            response = requests.patch(s1, **kw)
+        elif t.h_method == 'delete':
+            response = requests.delete(s1, **kw)
 
         t.h_status = response.status_code
         t.h_result = response
 
-
+import copy
