@@ -480,7 +480,7 @@ class LIB:  # { CORE : words }
         t.stack.append(t.memory.get(a, 0))
 
     @staticmethod  ### 2@ ###
-    def word_2_at__R_x(e, t, c, a):
+    def word_2_at__R_x_x(e, t, c, a):
         t.stack.append(t.memory.get(a, 0))
         t.stack.append(t.memory.get(a + 1, 0))
 
