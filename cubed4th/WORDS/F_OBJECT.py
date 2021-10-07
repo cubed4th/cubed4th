@@ -170,39 +170,37 @@ class LIB:  # { The Object ABI : words }
         """
         end = token[-1] == ")"
         if end:
-            token = token[:-1]
-
-        start = True if t.state == e.state_INTERPRET else False
-        if start:
-            token = token[2:]
-            struct = {"?": "()", ".": token, "*": [], "**": {}, "r": t.state, "d":len(t.stack)}
-            c.stack.append(struct)
-            t.state = e.OBJECT.sigil_lparen_dot
-        else:
-            struct = c.stack[-1]
-
-        if not start and not end:
-            e.state_INTERPRET(e, t, c, token)
-
-        if end:
-            c.stack.pop()
-            #
-            args = t.stack[struct["d"]:]
-            args.extend(tuple(struct["*"]))
-            t.stack = t.stack[:struct["d"]]
-
-            kwargs = struct["**"]
-
-            obj = t.stack[-1]
-            code = getattr(obj, struct["."])
-            result = code(*args, **kwargs)
+            obj = t.stack.pop()
+            code = getattr(obj, token[2:-1])
+            result = code()
             if isinstance(result, tuple):
                 t.stack.extend(result)
             else:
                 t.stack.append(result)
 
-            t.state = struct["r"]
             return
+
+        c.stack.append({"?": "()", ".": token[2:], "d":len(t.stack)})
+
+    @staticmethod  ### ) ###
+    def word_rparen__x(e, t, c):
+
+        struct = c.stack.pop()
+        assert struct["?"] == "()"
+
+        args = t.stack[struct["d"]:]
+        args.extend(tuple(struct.get("*",[])))
+        t.stack = t.stack[:struct["d"]]
+
+        kwargs = struct.get("**", {})
+
+        obj = t.stack.pop()
+        code = getattr(obj, struct["."])
+        result = code(*args, **kwargs)
+        if isinstance(result, tuple):
+            t.stack.extend(result)
+        else:
+            t.stack.append(result)
 
 
 

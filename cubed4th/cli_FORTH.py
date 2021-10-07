@@ -113,7 +113,7 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
 
             print("=>", end="")
             for object in e.root.stack:
-                object = str(object)
+                object = repr(object)
                 print(f" {object}", end="")
 
             print()

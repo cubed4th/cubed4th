@@ -26,7 +26,7 @@ __banner__ = r""" (
 
 class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
-    def __init__(self, run=None, run_tests=1, **kwargs):
+    def __init__(self, run=None, run_tests=0, **kwargs):
 
         self.root = TASK(self, root=True)
         self.call = CALL(self)
@@ -267,6 +267,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
         base = t.base
         if token[0] == "#":
+            base = 10
             token = token[1:]
         elif token[0] == "$":
             base = 16
@@ -295,6 +296,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
     @staticmethod
     def state_INTERPRET(e, t, c, token):
 
+        ic(token, t.stack, c.stack)
         if not isinstance(token, str):
             if not isinstance(token, tuple):
                 t.stack.append(token)
