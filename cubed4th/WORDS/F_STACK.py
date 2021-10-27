@@ -73,9 +73,9 @@ class LIB:  # { DATA Stack Manipulation : words }
         return (x1, x2, x1, x2)
 
     @staticmethod  ### NIP ###
-    def word_NIP__R_n2(e, t, c, n1, n2):
+    def word_NIP__R_x2(e, t, c, x1, x2):
         """"""
-        return (n2,)
+        return (x2,)
 
     @staticmethod  ### ROT ###
     def word_ROT__R_x2_x3_x1(e, t, c, x1, x2, x3):
@@ -118,6 +118,6 @@ class LIB:  # { DATA Stack Manipulation : words }
         return (x3, x4, x1, x2)
 
     @staticmethod  ### TUCK ###
-    def word_TUCK(e, t, c, n1, n2):
+    def word_TUCK(e, t, c, x1, x2):
         """"""
-        return (n2, n1, n2)
+        return (x2, x1, x2)

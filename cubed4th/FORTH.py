@@ -26,9 +26,12 @@ __banner__ = r""" (
 
 class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
-    def __init__(self, run=None, run_tests=0, **kwargs):
+    def __init__(self, run=None, run_tests=1, **kwargs):
 
-        self.root = TASK(self, root=True)
+        stack = kwargs.get('stack', [])
+        memory = kwargs.get('memory', {})
+
+        self.root = TASK(self, root=True, stack=stack, memory=memory)
         self.call = CALL(self)
 
         self.sandbox = kwargs.get('sandbox', 0)
@@ -41,7 +44,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         for digit in "#$%-01234567890":
             self.digits[digit] = True
 
-        vis = None if 'vis' not in kwargs else kwargs['vis']
+        vis = kwargs.get('vis', None)
 
         def load(self, vis, names):
             for name_level in names.split(" "):
@@ -296,7 +299,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
     @staticmethod
     def state_INTERPRET(e, t, c, token):
 
-        ic(token, t.stack, c.stack)
+        # ic(token, t.stack, c.stack)
         if not isinstance(token, str):
             if not isinstance(token, tuple):
                 t.stack.append(token)
@@ -411,6 +414,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             call = CALL(self, self.call)
             for line in test.split("\n"):
                 line = line.strip()
+                call.line = line
                 if line == "" or line[0] in ["#"]:
                     continue
 
@@ -476,15 +480,15 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
 
 class TASK:
-    def __init__(self, engine, root=False):
+    def __init__(self, engine, root=False, memory={}, stack=[]):
 
         self.engine = engine
         self.is_root = root
 
-        self.stack = []
+        self.stack = copy.copy(stack)
         self.rstack = []
 
-        self.memory = {}
+        self.memory = copy.copy(memory)
         self.here = 1_000_000 if root else 1
 
         self.sigils = {}
@@ -554,6 +558,7 @@ class ForthSyntaxException(ForthException):
 class ForthRuntimeException(ForthException):
     pass
 
+import copy
 
 from decimal import Decimal
 

@@ -40,6 +40,17 @@ class LIB:  # { CORE : words }
 
         t.state = LIB.sigil_lparen
 
+
+    @staticmethod  ### ((( ###
+    def sigil_lparen_lparen_lparen(e, t, c, token, start=False):
+
+        if isinstance(token, str) and len(token) and token[-3:] == ")))":
+            t.state = e.state_INTERPRET
+            return
+
+        t.state = LIB.sigil_lparen_lparen_lparen
+
+
     @staticmethod  ### \ ###
     def sigil_slash(e, t, c, token, start=False):
         c.tokens = []
@@ -239,16 +250,23 @@ class LIB:  # { CORE : words }
             t.state = e.state_INTERPRET
 
 
-    @staticmethod  ### .>> ###
-    def word_dot_rangle_rangle(e, t, c):
-        c.stack.append({"m": "DOT_TRIANGLE", 1: []})
+    @staticmethod  ### S"" ###
+    def word_S_quote_quote(e, t, c):
+        """
+S""
+Hello
+World
+""S
+
+        """
+        c.stack.append({"m": "S_QUOTE_QUOTE", 1: []})
         c.tokens = []
         t.state = LIB.state_multi_line_string
 
 
     @staticmethod
     def state_multi_line_string(e, t, c, token):
-        end = token == "<<."
+        end = token == "\"\"S"
         block = c.stack[-1]
         if end:
             c.stack.pop()
@@ -492,7 +510,7 @@ class LIB:  # { CORE : words }
         T{ v1 ->  111 }T
         T{ v2 -> -999 }T
         """
-        c.stack.append({"?": "VALUE", "x": x})
+        c.stack.append({"?": "VALUE", "x": (x,)})
         t.state = LIB.state_VALUE
 
     @staticmethod
@@ -528,7 +546,7 @@ class LIB:  # { CORE : words }
         T{ : vd1 v1 ;   ->     }T
         T{ vd1          -> 222 }T
         """
-        c.stack.append({"?": "TO", "x": x})
+        c.stack.append({"?": "TO", "x": (x,)})
         t.state = LIB.state_TO
 
     @staticmethod

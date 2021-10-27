@@ -75,9 +75,9 @@ class LIB:  # { The Object ABI : words }
         exec(f"e.add_word({s2}, lambda e, t, c{s1})")
 
     @staticmethod  ### LEN ###
-    def word_LEN__R_x_n(e, t, c, x):
-        "T{ 'Hello'World' LEN -> 11 }T"
-        return (len(x),)
+    def word_LEN__R_n(e, t, c, x):
+        "T{ 'Hello'World' len nip -> 11 }T"
+        return (x, len(x),)
 
     @staticmethod  ### *LEN ###
     def word_times_LEN__R_n(e, t, c, a):
@@ -165,8 +165,7 @@ class LIB:  # { The Object ABI : words }
     @staticmethod  ### (. ###
     def sigil_lparen_dot(e, t, c, token, start=False):
         """
-        T{ 'FOO (.__len__) -> 'FOO 3 }T
-        # T{ 'FOO (.replace 'O 'J ) -> 'FJJ }T
+        T{ 'FOO DUP (.__len__) -> 'FOO 3 }T
         """
         end = token[-1] == ")"
         if end:
@@ -183,8 +182,10 @@ class LIB:  # { The Object ABI : words }
         c.stack.append({"?": "()", ".": token[2:], "d":len(t.stack)})
 
     @staticmethod  ### ) ###
-    def word_rparen__x(e, t, c):
-
+    def word_rparen_R_x(e, t, c):
+        """
+        # T{ 'FOO (.replace 'O 'J ) -> 'FJJ }T
+        """
         struct = c.stack.pop()
         assert struct["?"] == "()"
 

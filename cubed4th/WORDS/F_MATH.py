@@ -60,6 +60,12 @@ class LIB:  # { Mathematical : words }
         x1[x3] = x2
         return (x1,)
 
+    @staticmethod  ### o@ ###
+    def word_O_at__R_x3(e, t, c, x1, x2):
+        r"""
+        T{ ({"Key":"Value"}) 'Key o@ -> ({"Key":"Value"}) 'Value }T
+        """
+        return (x1,x1[x2],)
 
     @staticmethod  ### - ###
     def word_m__R_x3(e, t, c, x1, x2):

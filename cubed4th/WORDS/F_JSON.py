@@ -41,6 +41,12 @@ class LIB:  # { JavaScript Object Notation : words }
         import arrow
         return (arrow.now(),)
 
+    @staticmethod ### DATETIME ###
+    def word_DATETIME__R_x(e, t, c):
+        import pendulum
+        return (pendulum.now(),)
+
+
     @staticmethod  ### ULID ###
     def word_ULID__R_x(e, t, c):
         import ulid
@@ -129,3 +135,16 @@ class LIB:  # { JavaScript Object Notation : words }
         import simplejson
 
         return (simplejson.loads(s, use_decimal=True, object_hook=h),)
+
+
+    @staticmethod  ### JSON-PATH ###
+    def word_JSON_m_PATH__R_x1_x2(e, t, c, x1, s1):
+        from jsonpath import JSONPath
+        return (x1,JSONPath(s1).parse(x1),)
+
+
+
+
+
+
+

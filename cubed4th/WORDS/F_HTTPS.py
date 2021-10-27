@@ -63,7 +63,7 @@ class LIB:  #
         t.h_params = x
 
     @staticmethod  ### H-JSON  ###
-    def word_H_m_INCOMING__R_x(e, t, c):
+    def word_H_m_JSON__R_x(e, t, c):
         return (t.h_result.json(),)
 
     @staticmethod  ### H-REQUEST  ###
