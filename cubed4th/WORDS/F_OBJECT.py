@@ -138,7 +138,8 @@ class LIB:  # { The Object ABI : words }
         if "a" in struct:
             obj = t.memory[struct["a"]]
         else:
-            obj = t.stack.pop()
+            # leave the object alone, use nip to delete if desired
+            obj = t.stack[-1]
 
         if 2 in struct:
             struct_2 = struct[2]

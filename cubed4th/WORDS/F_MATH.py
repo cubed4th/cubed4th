@@ -52,20 +52,27 @@ class LIB:  # { Mathematical : words }
         return (x1 + x2,)
 
 
-    @staticmethod  ### o! ###
-    def word_O_bang__R(e, t, c, x1, x2, x3):
+    @staticmethod  ### s! ###
+    def word_S_bang__R(e, t, c, x1, x2, x3):
         r"""
-        T{ ({}) 'Value 'Key o! -> ({"Key":"Value"}) }T
+        T{ ({}) 'Value 'Key s! -> ({"Key":"Value"}) }T
         """
         x1[x3] = x2
         return (x1,)
 
-    @staticmethod  ### o@ ###
-    def word_O_at__R_x3(e, t, c, x1, x2):
+    @staticmethod  ### s@ ###
+    def word_S_at__R_x1_x3(e, t, c, x1, x2):
         r"""
-        T{ ({"Key":"Value"}) 'Key o@ -> ({"Key":"Value"}) 'Value }T
+        T{ ({"Key":"Value"}) 'Key s@ -> ({"Key":"Value"}) 'Value }T
         """
         return (x1,x1[x2],)
+
+    @staticmethod  ### s@- ###
+    def word_S_at_minus__R_x3(e, t, c, x1, x2):
+        r"""
+        T{ ({"Key":"Value"}) 'Key s@- -> 'Value }T
+        """
+        return (x1[x2],)
 
     @staticmethod  ### - ###
     def word_m__R_x3(e, t, c, x1, x2):

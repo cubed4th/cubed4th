@@ -487,11 +487,21 @@ World
 
     @staticmethod  ### @ ###
     def word_at__R_x(e, t, c, a):
+        if isinstance(a, str):
+            return (t.memory[a],)
         t.stack.append(t.memory.get(a, 0))
 
     @staticmethod  ### @NONE ###
     def word_at_NONE__R_x(e, t, c, a):
         t.stack.append(t.memory.get(a, None))
+
+    @staticmethod  ### @0 ###
+    def word_at_0__R_x(e, t, c, a):
+        t.stack.append(t.memory.get(a, 0))
+
+    @staticmethod  ### @"" ###
+    def word_at_quote_quote__R_x(e, t, c, a):
+        t.stack.append(t.memory.get(a, ""))
 
     @staticmethod  ### C@ ###
     def word_C_at__R_x(e, t, c, a):

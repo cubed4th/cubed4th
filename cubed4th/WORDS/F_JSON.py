@@ -138,9 +138,24 @@ class LIB:  # { JavaScript Object Notation : words }
 
 
     @staticmethod  ### JSON-PATH ###
-    def word_JSON_m_PATH__R_x1_x2(e, t, c, x1, s1):
+    def word_JSON_m_PATH__R_x1_x2(e, t, c, x1, s):
         from jsonpath import JSONPath
-        return (x1,JSONPath(s1).parse(x1),)
+        return (x1,JSONPath(s).parse(x1),)
+
+    @staticmethod  ### JSON-PATH- ###
+    def word_JSON_m_PATH_minus__R_x2(e, t, c, x1, s):
+        from jsonpath import JSONPath
+        return (JSONPath(s).parse(x1),)
+
+    @staticmethod  ### JSON-PATH0 ###
+    def word_JSON_m_PATH_0__R_x1_x2(e, t, c, x1, s):
+        from jsonpath import JSONPath
+        return (x1,JSONPath(s).parse(x1)[0],)
+
+    @staticmethod  ### JSON-PATH0- ###
+    def word_JSON_m_PATH_0_minus__R_x2(e, t, c, x1, s):
+        from jsonpath import JSONPath
+        return (JSONPath(s).parse(x1)[0],)
 
 
 
