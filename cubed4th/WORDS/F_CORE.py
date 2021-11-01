@@ -59,6 +59,12 @@ class LIB:  # { CORE : words }
     def sigil_hash(e, t, c, token, start=False):
         c.tokens = []
 
+    @staticmethod  ### A{ ###
+    def word_A_lbrace(e, t, c):
+        stack = copy.deepcopy(t.stack)
+        c.stack.append({"?": "TEST", "STACK": t.stack, "ASSERT": True})
+        t.stack = stack
+
     @staticmethod  ### T{ ###
     def word_T_lbrace(e, t, c):
         stack = copy.deepcopy(t.stack)
@@ -82,6 +88,10 @@ class LIB:  # { CORE : words }
         #block = c.stack[-1]
         #block["END"] = True
         pass
+
+    @staticmethod  ### }A ###
+    def word_rbrace_A(e, t, c):
+        LIB.word_rbrace_T(e, t, c)
 
     @staticmethod  ### }T ###
     def word_rbrace_T(e, t, c):
@@ -114,7 +124,13 @@ class LIB:  # { CORE : words }
 
         if not equal:
             t.test["f"] += 1
-            print(f"INCORRECT RESULT: {have} ~= {need} {line}")
+            if block.get("ASSERT", False):
+                if isinstance(have[i], bool) or isinstance(need[i], bool):
+                    assert (not have[i]) == (not need[i])
+                else:
+                    assert have[i] == need[i]
+            else:
+                print(f"INCORRECT RESULT: {have} ~= {need} {line}")
 
     @staticmethod  ### TESTING ###
     def word_TESTING__R(e, t, c):
