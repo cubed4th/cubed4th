@@ -507,6 +507,12 @@ World
             return (t.memory[a],)
         t.stack.append(t.memory.get(a, 0))
 
+
+    @staticmethod  ### ?@ ###
+    def word_qmark_at__R_b(e, t, c, a):
+        return (True if a in t.memory else False,)
+
+
     @staticmethod  ### @NONE ###
     def word_at_NONE__R_x(e, t, c, a):
         t.stack.append(t.memory.get(a, None))
@@ -518,6 +524,27 @@ World
     @staticmethod  ### @"" ###
     def word_at_quote_quote__R_x(e, t, c, a):
         t.stack.append(t.memory.get(a, ""))
+
+
+
+    @staticmethod  ### *@ ###
+    def word_times_at__R_x(e, t, c, a, s):
+        if isinstance(a, str):
+            return (t.memory[a][s],)
+        t.stack.append(t.memory.get(a, 0))
+
+    @staticmethod  ### *@NONE ###
+    def word_times_at_NONE__R_x(e, t, c, a, s):
+        t.stack.append(t.memory[a].get(s, None))
+
+    @staticmethod  ### *@0 ###
+    def word_at_0__R_x(e, t, c, a, s):
+        t.stack.append(t.memory[a].get(s, 0))
+
+    @staticmethod  ### *@"" ###
+    def word_at_quote_quote__R_x(e, t, c, a):
+        t.stack.append(t.memory[a].get(a, ""))
+
 
     @staticmethod  ### C@ ###
     def word_C_at__R_x(e, t, c, a):

@@ -54,7 +54,7 @@ class LIB:  # { By the Power of Introspection : words }
         word_list1 = []
         word_list2 = []
         for word in words:
-            if len(word) > 4 and word[1] == '-':
+            if len(word[1:].split('-')) > 1:
                 word_list2.append(word)
             else:
                 word_list1.append(word)
