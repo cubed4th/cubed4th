@@ -108,6 +108,20 @@ class LIB:  # { By the Power of Introspection : words }
 
     @staticmethod  ### MEM ###
     def word_MEM(e, t, c):
+        clean = {}
+        for k, v in e.root.memory.items():
+            if not k[0] == "_":
+                clean[k] = v
+        print(str(clean))
+        if not t.is_root:
+            clean = {}
+            for k, v in t.memory.items():
+                if not k[0] == "_":
+                    clean[k] = v
+            print(str(clean))
+
+    @staticmethod  ### MEM:ALL ###
+    def word_MEM_colon_ALL(e, t, c):
         print(str(e.root.memory))
         if not t.is_root:
             print(str(t.memory))

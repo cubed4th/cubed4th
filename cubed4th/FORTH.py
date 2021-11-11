@@ -33,6 +33,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
         self.root = TASK(self, root=True, stack=stack, memory=memory)
         self.call = CALL(self)
+        self.tape = None
 
         self.sandbox = kwargs.get('sandbox', 0)
 
@@ -129,6 +130,18 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         "rainbow": "\u1F308",
         "astonished": "\u1F632",
     }
+
+    def save(self):
+        self.tape = {}
+        self.tape["memory"] = copy.copy(self.root.memory)
+        self.tape["stack"] = copy.copy(self.root.stack)
+        return self.tape
+
+    def load(self):
+        if self.tape:
+            self.root.memory = copy.copy(self.tape["memory"])
+            self.root.stack = copy.copy(self.tape["stack"])
+
 
     def add_word(self, name, code, where=None):
         parts = name.lower().split("_")
@@ -460,6 +473,10 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             if not guards == "":
                 if line.lstrip()[0:3] == guards[0:3]:
                     include = ~include
+                    parts = line.split()
+                    if len(parts) > 2:
+                        if parts[1].lower() == ">now>":
+                            guards = parts[2]
                     continue
 
             if not include: continue
