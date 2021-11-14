@@ -54,12 +54,12 @@ class LIB:  # { JavaScript Object Notation : words }
     @staticmethod  ### ULID ###
     def word_ULID__R_x(e, t, c):
         import ulid
-        return (ulid.ULID(),)
+        return (str(ulid.ULID()),)
 
     @staticmethod  ### KSUID ###
     def word_KSUID__R_x(e, t, c):
         import ksuid
-        return (ksuid.Ksuid(),)
+        return (str(ksuid.Ksuid()),)
 
     @staticmethod  ### ([ ###
     def sigil_lparen_lbrack(e, t, c, token, *args, **kwargs):

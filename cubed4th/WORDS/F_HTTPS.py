@@ -75,6 +75,8 @@ class LIB:  #
     def word_H_m_REQUEST_langle_300__R(e, t, c, s1):
         LIB.word_H_m_REQUEST__R(e, t, c, s1)
         h_status = t.h_status
+        if h_status >= 300:
+            ic(LIB)
         assert h_status < 300
 
     @staticmethod  ### H-REQUEST  ###

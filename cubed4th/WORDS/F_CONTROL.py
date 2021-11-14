@@ -59,6 +59,14 @@ class LIB:  # { Control Flow : words }
     def word_EXIT__R(e, t, c):
         c.EXIT = True
 
+    @staticmethod  ### STOP ###
+    def word_STOP__R(e, t, c):
+        c.EXIT = True
+        p = c.parent
+        while p:
+            p.EXIT = True
+            p = p.parent
+
     @staticmethod  ### V ###
     def word_V__2R_x(e, t, c):
         call = c

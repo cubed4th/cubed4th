@@ -84,6 +84,11 @@ class LIB:  # { The Object ABI : words }
         """"""
         return (len(t.memory[a]),)
 
+    @staticmethod  ### NOT ###
+    def word_NOT__R_b(e, t, c, x):
+        """"""
+        return (not x,)
+
     @staticmethod  ### ~ ###
     def word_tilde__R_b(e, t, c, x):
         return (not x,)
@@ -183,10 +188,23 @@ class LIB:  # { The Object ABI : words }
         c.stack.append({"?": "()", ".": token[2:], "d":len(t.stack)})
 
     @staticmethod  ### ) ###
-    def word_rparen_R_x(e, t, c):
+    def word_rparen__R_x(e, t, c):
         """
-        # T{ 'FOO (.replace 'O 'J ) -> 'FJJ }T
+        T{ 'FOO (.replace 'O 'J ) -> 'FOO 'FJJ }T
         """
+        LIB.impl_rparen_R_x(e, t, c, pop_obj=False)
+
+    @staticmethod  ### )- ###
+    def word_rparen_minus__R_x(e, t, c):
+        """
+        T{ 'FOO (.replace 'O 'J )- -> 'FJJ }T
+        """
+        LIB.impl_rparen_R_x(e, t, c, pop_obj=True)
+
+
+    @staticmethod  ### )- ###
+    def impl_rparen_R_x(e, t, c, pop_obj):
+
         struct = c.stack.pop()
         assert struct["?"] == "()"
 
@@ -196,7 +214,11 @@ class LIB:  # { The Object ABI : words }
 
         kwargs = struct.get("**", {})
 
-        obj = t.stack.pop()
+        if pop_obj:
+            obj = t.stack.pop()
+        else:
+            obj = t.stack[-1]
+
         code = getattr(obj, struct["."])
         result = code(*args, **kwargs)
         if isinstance(result, tuple):

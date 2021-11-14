@@ -37,6 +37,10 @@ class LIB:  # { By the Power of Introspection : words }
     def word_IC__R(e, t, c, x):
         ic(x)
 
+    @staticmethod  ### IC-STACK ###
+    def word_IC_m_STACK__R(e, t, c):
+        ic(t.stack)
+
     @staticmethod  ### .S ###
     def word_dot_S__R_x(e, t, c, x):
         print(f" {x}")

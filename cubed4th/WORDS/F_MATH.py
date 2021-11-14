@@ -52,6 +52,21 @@ class LIB:  # { Mathematical : words }
         return (x1 + x2,)
 
 
+    @staticmethod  ### IN ###
+    def word_IN__R_b(e, t, c, x, s):
+        r"""
+        T{ ({"Key":"Value"}) 'Key IN DROP -> <true> }T
+        """
+        return (x,s in x)
+
+    @staticmethod  ### IN- ###
+    def word_IN_m__R_b(e, t, c, x, s):
+        r"""
+        T{ ({"Key":"Value"}) 'Key IN- -> <true> }T
+        """
+        return (s in x,)
+
+
     @staticmethod  ### s! ###
     def word_S_bang__R(e, t, c, x1, x2, x3):
         r"""

@@ -92,6 +92,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
     def raise_RuntimeError(self, details):
         raise ForthRuntimeException(details)
 
+
     symbol_map = {
         "bang": "!",
         "at": "@",
@@ -131,17 +132,47 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         "astonished": "\u1F632",
     }
 
-    def save(self):
+    def __getattr__(self, attr):
+
+        def impl(*args):
+            if attr in self.root.words:
+                depth = len(self.root.stack)
+                self.root.stack.extend(args)
+                self.execute(attr, include=True)
+                result = tuple(self.root.stack[depth:])
+                self.root.stack = self.root.stack[:depth]
+                return result
+            return self.root.memory.get(attr, None)
+
+        return impl
+
+
+    def peek(self, addr, default=None):
+        return self.root.memory.get(addr, default)
+
+    def poke(self, addr, value):
+        self.root.memory[addr] = value
+
+    def save(self, save_memory=True, save_stack=True, save_words=False):
         self.tape = {}
-        self.tape["memory"] = copy.copy(self.root.memory)
-        self.tape["stack"] = copy.copy(self.root.stack)
+        if save_stack:
+            self.tape["stack"] = copy.copy(self.root.stack)
+        if save_memory:
+            self.tape["memory"] = copy.copy(self.root.memory)
+        if save_words:
+            self.tape["words"] = copy.copy(self.root.words)
         return self.tape
 
     def load(self):
         if self.tape:
-            self.root.memory = copy.copy(self.tape["memory"])
-            self.root.stack = copy.copy(self.tape["stack"])
-
+            if 'stack' in self.tape:
+                self.root.stack = copy.copy(self.tape["stack"])
+            else:
+                self.root.stack = []
+            if 'memory' in self.tape:
+                self.root.memory = copy.copy(self.tape["memory"])
+            if 'words' in self.tape:
+                self.root.words = copy.copy(self.tape["words"])
 
     def add_word(self, name, code, where=None):
         parts = name.lower().split("_")
@@ -417,6 +448,11 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             if c.EXIT:
                 break
 
+    @staticmethod
+    def execute_token(e, t, c, token):
+        if not token in ["#"]:
+            t.state(e, t, c, token)
+
     def execute_tests(self, tests):
         if not tests:
             return
@@ -457,9 +493,9 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.root.test["p"] += task.test["p"]
             self.root.test["f"] += task.test["f"]
 
-    def execute(self, lines, guards=""):
+    def execute(self, lines, guards="", include=False):
         guards = self.guards if guards == "" else guards
-        include = True if guards == "" else False
+        include = True if guards == "" else include
         self.call.EXIT = False
 
         lines = lines.split("\n")

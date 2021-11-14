@@ -482,6 +482,16 @@ World
 
         t.memory[a] = x
 
+    @staticmethod  ### *! ###
+    def word_times_bang__R(e, t, c, x, a, s):
+        """"""
+        if isinstance(a, int) and a >= 1_000_000:
+            if not t.is_root:
+                e.raise_RuntimeError("!: error(-1): Illegal Memory Access")
+
+        t.memory[a][s] = x
+
+
     @staticmethod  ### C! ###
     def word_C_bang__M__R(e, t, c, x, a):
         """"""
@@ -500,6 +510,11 @@ World
 
         t.memory[a] = x1
         t.memory[a + 1] = x2
+
+
+    @staticmethod  ### *IN ###
+    def word_times_IN__R_b(e, t, c, a, s):
+        return (s in t.memory[a],)
 
     @staticmethod  ### @ ###
     def word_at__R_x(e, t, c, a):
@@ -524,8 +539,6 @@ World
     @staticmethod  ### @"" ###
     def word_at_quote_quote__R_x(e, t, c, a):
         t.stack.append(t.memory.get(a, ""))
-
-
 
     @staticmethod  ### *@ ###
     def word_times_at__R_x(e, t, c, a, s):
