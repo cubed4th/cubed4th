@@ -54,7 +54,7 @@ class LIB:  # { JavaScript Object Notation : words }
     @staticmethod  ### ULID ###
     def word_ULID__R_x(e, t, c):
         import ulid
-        return (str(ulid.ULID()),)
+        return (str(ulid.ULID())[:-2] + '0Z',)
 
     @staticmethod  ### KSUID ###
     def word_KSUID__R_x(e, t, c):

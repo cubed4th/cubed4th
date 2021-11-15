@@ -56,8 +56,14 @@ class LIB:  #
 
     @staticmethod  ### H-DATA  ###
     def word_H_m_DATA__R(e, t, c, x):
-        import json
-        t.h_data = json.dumps(x)
+
+        def encode(_):
+            if isinstance(_, complex):
+                return {"__complex__": True, "real": _.real, "imag": _.imag}
+            raise TypeError(repr(_) + " is not JSON serializable")
+
+        import simplejson
+        t.h_data = simplejson.dumps(x, default=encode)
 
     @staticmethod  ### H-PARAMS  ###
     def word_H_m_PARAMS__R(e, t, c, x):
@@ -65,7 +71,14 @@ class LIB:  #
 
     @staticmethod  ### H-JSON  ###
     def word_H_m_JSON__R_x(e, t, c):
-        return (t.h_result.json(),)
+
+        def h(values):
+            if "__complex__" in values:
+                return complex(values["real"], values["imag"])
+            return values
+
+        import simplejson
+        return (simplejson.loads(t.h_result.text, use_decimal=True, object_hook=h),)
 
     @staticmethod  ### H-HEADERS  ###
     def word_H_m_HEADERS__R_x(e, t, c):
@@ -75,8 +88,6 @@ class LIB:  #
     def word_H_m_REQUEST_langle_300__R(e, t, c, s1):
         LIB.word_H_m_REQUEST__R(e, t, c, s1)
         h_status = t.h_status
-        if h_status >= 300:
-            ic(LIB)
         assert h_status < 300
 
     @staticmethod  ### H-REQUEST  ###
