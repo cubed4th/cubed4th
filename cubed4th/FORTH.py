@@ -493,6 +493,9 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.root.test["p"] += task.test["p"]
             self.root.test["f"] += task.test["f"]
 
+    def call(self, method):
+        self.execute(method, include=True)
+
     def execute(self, lines, guards="", include=False):
         guards = self.guards if guards == "" else guards
         include = True if guards == "" else include
