@@ -74,6 +74,10 @@ class LIB:  # { The Object ABI : words }
         s1 = ":".join(parts)
         exec(f"e.add_word({s2}, lambda e, t, c{s1})")
 
+    @staticmethod  ### INT ###
+    def word_INT__R_n(e, t, c, s):
+        return (int(s),)
+
     @staticmethod  ### LEN ###
     def word_LEN__R_n(e, t, c, x):
         "T{ 'Hello'World' len nip -> 11 }T"

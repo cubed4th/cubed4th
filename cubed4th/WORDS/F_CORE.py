@@ -56,7 +56,7 @@ class LIB:  # { CORE : words }
         c.tokens = []
 
     @staticmethod  ### # ###
-    def sigil_hash(e, t, c, token, start=False):
+    def word_hash(e, t, c):
         c.tokens = []
 
     @staticmethod  ### A{ ###

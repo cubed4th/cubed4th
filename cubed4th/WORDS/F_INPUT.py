@@ -32,6 +32,12 @@ class LIB:  # { Input / Output : words }
     def __init__(self, e, t, **kwargs):
         pass
 
-    # @staticmethod ### PRINT ###
-    # def word_PRINT__R(e, t, c, x):
-    #    print(x)
+    @staticmethod ### READ-LINES ###
+    def word_READ_m_LINES__R(e, t, c, s):
+        result = []
+        with open(s, 'rt') as f:
+            for l in f.readlines():
+                l = l.strip()
+                if not l == '':
+                    result.append(l)
+        return (result,)
