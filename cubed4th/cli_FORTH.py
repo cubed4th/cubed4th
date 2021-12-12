@@ -24,7 +24,7 @@ __banner__ = r""" (
 
 """  # __banner__
 
-__version__ = "1.1.20210725000000"
+__version__ = "2.0.20211212"
 
 class IDE:  # { The p-unity IDE: Intergrated Development Environment }
     def __init__(self, run=None, **kwargs):
