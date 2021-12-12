@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _      _____    ______   _____    _
   /\| |/\  |  __ \  |  ____| |  __ \  | |
@@ -15,6 +15,8 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 
 )
+
+
 
 
 
@@ -35,6 +37,10 @@ class LIB:  # { By the Power of Introspection : words }
     def word_IC__R(e, t, c, x):
         ic(x)
 
+    @staticmethod  ### IC-STACK ###
+    def word_IC_m_STACK__R(e, t, c):
+        ic(t.stack)
+
     @staticmethod  ### .S ###
     def word_dot_S__R_x(e, t, c, x):
         print(f" {x}")
@@ -47,12 +53,30 @@ class LIB:  # { By the Power of Introspection : words }
             words[name] = True
         for name in t.words.keys():
             words[name] = True
+
+        words = sorted(words)
+        word_list1 = []
+        word_list2 = []
+        for word in words:
+            if len(word[1:].split('-')) > 1:
+                word_list2.append(word)
+            else:
+                word_list1.append(word)
+
+        print(" ".join(word_list1))
+        print("")
+        print(" ".join(word_list2))
+        print("\n%i words; see also: sigils" % (len(words)))
+
+    @staticmethod  ### SIGILS ###
+    def word_SIGILS(e, t, c):
+        words = {}
         for name in e.root.sigils.keys():
             words[name] = True
         for name in t.sigils.keys():
             words[name] = True
         words = sorted(words)
-        print(" ".join(words))
+        print("%s\n\n%i sigils; see also: words" % (" ".join(words), len(words)))
 
     @staticmethod  ### SEE ###
     def word_SEE(e, t, c):
@@ -88,6 +112,20 @@ class LIB:  # { By the Power of Introspection : words }
 
     @staticmethod  ### MEM ###
     def word_MEM(e, t, c):
+        clean = {}
+        for k, v in e.root.memory.items():
+            if not k[0] == "_":
+                clean[k] = v
+        print(str(clean))
+        if not t.is_root:
+            clean = {}
+            for k, v in t.memory.items():
+                if not k[0] == "_":
+                    clean[k] = v
+            print(str(clean))
+
+    @staticmethod  ### MEM:ALL ###
+    def word_MEM_colon_ALL(e, t, c):
         print(str(e.root.memory))
         if not t.is_root:
             print(str(t.memory))

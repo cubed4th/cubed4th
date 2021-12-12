@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _       _____    ____    _____    ______
   /\| |/\   / ____|  / __ \  |  __ \  |  ____|
@@ -18,6 +18,9 @@ __banner__ = r""" ( This string is also the module initilizer program.
 # : ; ' ." ! @ @NONE CREATE HERE ALLOT
 # VARIABLE CONSTANT VALUE TO LOCALS| |
 # 1+ 1- 2+ 2- <TRUE> <FALSE>
+# .>> <<.
+
+
 
 
 """  # __banner__
@@ -37,20 +40,30 @@ class LIB:  # { CORE : words }
 
         t.state = LIB.sigil_lparen
 
-    @staticmethod  ### \ ###
-    def sigil_slash(e, t, c, token, start=False):
-        c.stack.append({"?": "SLASH", "LINE": t.line, "r": t.state})
-        t.state = LIB.state_slash
 
-    @staticmethod
-    def state_slash(e, t, c, token):
-        struct = c.stack[-1]
-        if struct["LINE"] == t.line:
+    @staticmethod  ### ((( ###
+    def sigil_lparen_lparen_lparen(e, t, c, token, start=False):
+
+        if isinstance(token, str) and len(token) and token[-3:] == ")))":
+            t.state = e.state_INTERPRET
             return
 
-        c.stack.pop()
-        t.state = struct["r"]
-        t.state(e, t, c, token)
+        t.state = LIB.sigil_lparen_lparen_lparen
+
+
+    @staticmethod  ### \ ###
+    def sigil_slash(e, t, c, token, start=False):
+        c.tokens = []
+
+    @staticmethod  ### # ###
+    def word_hash(e, t, c):
+        c.tokens = []
+
+    @staticmethod  ### A{ ###
+    def word_A_lbrace(e, t, c):
+        stack = copy.deepcopy(t.stack)
+        c.stack.append({"?": "TEST", "STACK": t.stack, "ASSERT": True})
+        t.stack = stack
 
     @staticmethod  ### T{ ###
     def word_T_lbrace(e, t, c):
@@ -65,10 +78,20 @@ class LIB:  # { CORE : words }
         t.stack = stack
 
     @staticmethod  ### -> ###
-    def word_minus_rangle(e, t, c):
+    def word_m_rangle(e, t, c):
         block = c.stack[-1]
         block["HAVE"] = t.stack[len(block["STACK"]) :]
         t.stack = copy.deepcopy(block["STACK"])
+
+    @staticmethod  ### --END-- ###
+    def word_m_minus_END_m_minus__R(e, t, c):
+        #block = c.stack[-1]
+        #block["END"] = True
+        pass
+
+    @staticmethod  ### }A ###
+    def word_rbrace_A(e, t, c):
+        LIB.word_rbrace_T(e, t, c)
 
     @staticmethod  ### }T ###
     def word_rbrace_T(e, t, c):
@@ -101,7 +124,13 @@ class LIB:  # { CORE : words }
 
         if not equal:
             t.test["f"] += 1
-            print(f"INCORRECT RESULT: {have} ~= {need} {line}")
+            if block.get("ASSERT", False):
+                if isinstance(have[i], bool) or isinstance(need[i], bool):
+                    assert (not have[i]) == (not need[i])
+                else:
+                    assert have[i] == need[i]
+            else:
+                print(f"INCORRECT RESULT: {have} ~= {need} {line}")
 
     @staticmethod  ### TESTING ###
     def word_TESTING__R(e, t, c):
@@ -151,6 +180,9 @@ class LIB:  # { CORE : words }
     @staticmethod  ### = ###
     def word_equal__R_b(e, t, c, x1, x2):
         """
+
+
+
         T{  0  0 = -> <TRUE>  }T
         T{  1  1 = -> <TRUE>  }T
         T{ -1 -1 = -> <TRUE>  }T
@@ -232,6 +264,36 @@ class LIB:  # { CORE : words }
             c.stack.pop()
             print(" ".join(block[1]), end="")
             t.state = e.state_INTERPRET
+
+
+    @staticmethod  ### S"" ###
+    def word_S_quote_quote(e, t, c):
+        """
+S""
+Hello
+World
+""S
+
+        """
+        c.stack.append({"m": "S_QUOTE_QUOTE", 1: []})
+        c.tokens = []
+        t.state = LIB.state_multi_line_string
+
+
+    @staticmethod
+    def state_multi_line_string(e, t, c, token):
+        end = token == "\"\"S"
+        block = c.stack[-1]
+        if end:
+            c.stack.pop()
+            t.stack.append("\n".join(block[1]))
+            t.state = e.state_INTERPRET
+            return
+
+        # append the line verbatim and absorb all the tokens
+        block[1].append(c.line)
+        c.tokens = []
+
 
     @staticmethod  ### S" ###
     def word_S_quote(e, t, c):
@@ -320,8 +382,6 @@ class LIB:  # { CORE : words }
             does = e.root.word_does[t.last_call]
 
         if len(does):
-            # comment = ["(", t.last_call, "does>", ")"]
-            # t.words[name] = [(t.here,)] + comment + does
             t.words[name] = [(t.here,)] + does
         else:
             t.words[name] = [(t.here,)]
@@ -422,6 +482,16 @@ class LIB:  # { CORE : words }
 
         t.memory[a] = x
 
+    @staticmethod  ### *! ###
+    def word_times_bang__R(e, t, c, x, a, s):
+        """"""
+        if isinstance(a, int) and a >= 1_000_000:
+            if not t.is_root:
+                e.raise_RuntimeError("!: error(-1): Illegal Memory Access")
+
+        t.memory[a][s] = x
+
+
     @staticmethod  ### C! ###
     def word_C_bang__M__R(e, t, c, x, a):
         """"""
@@ -441,20 +511,60 @@ class LIB:  # { CORE : words }
         t.memory[a] = x1
         t.memory[a + 1] = x2
 
+
+    @staticmethod  ### *IN ###
+    def word_times_IN__R_b(e, t, c, a, s):
+        return (s in t.memory[a],)
+
     @staticmethod  ### @ ###
     def word_at__R_x(e, t, c, a):
+        if isinstance(a, str):
+            return (t.memory[a],)
         t.stack.append(t.memory.get(a, 0))
+
+
+    @staticmethod  ### ?@ ###
+    def word_qmark_at__R_b(e, t, c, a):
+        return (True if a in t.memory else False,)
+
 
     @staticmethod  ### @NONE ###
     def word_at_NONE__R_x(e, t, c, a):
         t.stack.append(t.memory.get(a, None))
+
+    @staticmethod  ### @0 ###
+    def word_at_0__R_x(e, t, c, a):
+        t.stack.append(t.memory.get(a, 0))
+
+    @staticmethod  ### @"" ###
+    def word_at_quote_quote__R_x(e, t, c, a):
+        t.stack.append(t.memory.get(a, ""))
+
+    @staticmethod  ### *@ ###
+    def word_times_at__R_x(e, t, c, a, s):
+        if isinstance(a, str):
+            return (t.memory[a][s],)
+        t.stack.append(t.memory.get(a, 0))
+
+    @staticmethod  ### *@NONE ###
+    def word_times_at_NONE__R_x(e, t, c, a, s):
+        t.stack.append(t.memory[a].get(s, None))
+
+    @staticmethod  ### *@0 ###
+    def word_at_0__R_x(e, t, c, a, s):
+        t.stack.append(t.memory[a].get(s, 0))
+
+    @staticmethod  ### *@"" ###
+    def word_at_quote_quote__R_x(e, t, c, a):
+        t.stack.append(t.memory[a].get(a, ""))
+
 
     @staticmethod  ### C@ ###
     def word_C_at__R_x(e, t, c, a):
         t.stack.append(t.memory.get(a, 0))
 
     @staticmethod  ### 2@ ###
-    def word_2_at__R_x(e, t, c, a):
+    def word_2_at__R_x_x(e, t, c, a):
         t.stack.append(t.memory.get(a, 0))
         t.stack.append(t.memory.get(a + 1, 0))
 
@@ -466,7 +576,7 @@ class LIB:  # { CORE : words }
         T{ v1 ->  111 }T
         T{ v2 -> -999 }T
         """
-        c.stack.append({"?": "VALUE", "x": x})
+        c.stack.append({"?": "VALUE", "x": (x,)})
         t.state = LIB.state_VALUE
 
     @staticmethod
@@ -502,7 +612,7 @@ class LIB:  # { CORE : words }
         T{ : vd1 v1 ;   ->     }T
         T{ vd1          -> 222 }T
         """
-        c.stack.append({"?": "TO", "x": x})
+        c.stack.append({"?": "TO", "x": (x,)})
         t.state = LIB.state_TO
 
     @staticmethod
@@ -546,6 +656,7 @@ class LIB:  # { CORE : words }
 
     @staticmethod  ### ' ###
     def sigil_tick(e, t, c, token, start=False):
+
         end = token[-1] == "'"
         if end:
             token = token[:-1]
@@ -560,7 +671,7 @@ class LIB:  # { CORE : words }
         return (n1 + 1,)
 
     @staticmethod  ### 1- ###
-    def word_1_minus__R_n2(e, t, c, n1):
+    def word_1_m__R_n2(e, t, c, n1):
         return (n1 - 1,)
 
     @staticmethod  ### 2+ ###
@@ -568,7 +679,7 @@ class LIB:  # { CORE : words }
         return (n1 + 2,)
 
     @staticmethod  ### 2- ###
-    def word_2_minus__R_n2(e, t, c, n1):
+    def word_2_m__R_n2(e, t, c, n1):
         return (n1 - 2,)
 
     @staticmethod  ### CELL+ ###
@@ -771,7 +882,6 @@ class LIB:  # { CORE : words }
     @staticmethod  ### EX... ###
     def word_EX_dot_dot_dot__R(e, t, c, xt):
         LIB.word_EXECUTE__R(e, t, c, xt)
-
 
 import copy
 

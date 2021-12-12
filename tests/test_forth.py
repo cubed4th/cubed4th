@@ -29,39 +29,50 @@ class TestFORTH:
 
     def test_0000(self):
         r"""
+        ```
         1 2 3
+        : hello 'World ;
         """
-        e = FORTH.Engine(self.test_0000.__doc__, **self.options)
+        e = FORTH.Engine(run=self.test_0000.__doc__, **self.options)
+        print e.hello
         assert e.root.stack == [1, 2, 3]
         assert e.root.memory == {}
+        assert e.root.test["f"] == 0
 
     def test_0001(self):
         r"""
+        ```
         'Hello 'World
         """
         e = FORTH.Engine(self.test_0001.__doc__, **self.options)
         assert e.root.stack == ["Hello", "World"]
         assert e.root.memory == {}
+        assert e.root.test["f"] == 0
 
     def test_0002(self):
         r"""
+        ```
         123 456 !
         """
         e = FORTH.Engine(self.test_0002.__doc__, **self.options)
         assert e.root.stack == []
         assert e.root.memory == {456: 123}
+        assert e.root.test["f"] == 0
 
     def test_0003(self):
         r"""
+        ```
         123 'FOO_1 !
         'Baz 'FOO_2 !
         """
         e = FORTH.Engine(self.test_0003.__doc__, **self.options)
         assert e.root.stack == []
         assert e.root.memory == {"FOO_1": 123, "FOO_2": "Baz"}
+        assert e.root.test["f"] == 0
 
     def test_1000(self):
         r"""
+        ```
         T{ 'Hello 'World DROP -> ("Hello") }T
         """
         e = FORTH.Engine(self.test_1000.__doc__, **self.options)
@@ -72,6 +83,8 @@ class TestFORTH:
         assert e.root.test["f"] == 0
 
     BASIC_ASSUMPTIONS = r"""
+
+```
 
 T{ -> }T               \ START WITH CLEAN SLATE
 ( TEST IF ANY BITS ARE SET; ANSWER IN BASE 1 )
@@ -87,6 +100,8 @@ T{ -1 BITSSET? -> 0 0 }T
         assert e.root.test["f"] == 0
 
     BOOLEANS_INVERT = r"""
+
+```
 
 T{ 0 0 AND -> 0 }T
 T{ 0 1 AND -> 0 }T
@@ -124,6 +139,8 @@ T{ 1S 1S XOR -> 0S }T
         assert e.root.test["f"] == 0
 
     LSHIFT_RSHIFT = r"""
+
+```
 
 0    CONSTANT 0S
 0 INVERT CONSTANT 1S
@@ -171,6 +188,8 @@ T{ MSB 1 RSHIFT 2* -> MSB }T
         assert e.root.test["f"] == 0
 
     COMPARISONS = r"""
+
+```
 
 0    CONSTANT 0S
 0 INVERT CONSTANT 1S
@@ -255,6 +274,8 @@ T{ 1 -1 MAX -> 1 }T
 
     STACK_OPS = r"""
 
+```
+
 T{ 1 2 2DROP -> }T
 T{ 1 2 2DUP -> 1 2 1 2 }T
 T{ 1 2 3 4 2OVER -> 1 2 3 4 1 2 }T
@@ -280,6 +301,8 @@ T{ 1 2 SWAP -> 2 1 }T
 
     RETURN_STACK = r"""
 
+```
+
 0 CONSTANT 0S
 0 INVERT CONSTANT 1S
 
@@ -298,6 +321,8 @@ T{ 1S GR1 -> 1S }T   ( RETURN STACK HOLDS CELLS )
         assert e.root.test["f"] == 0
 
     ADD_SUBTRACT = r"""
+
+```
 
 T{ 0 5 + -> 5 }T
 T{ 5 0 + -> 5 }T
@@ -349,6 +374,8 @@ T{ -1 ABS -> 1 }T
         assert e.root.test["f"] == 0
 
     MULTIPLY = r"""
+
+```
 
 # T{ 0 S>D -> 0 0 }T
 # T{ 1 S>D -> 1 0 }T
@@ -411,6 +438,8 @@ T{ -3 -3 * -> 9 }T
         assert e.root.test["f"] == 0
 
     HERE = r"""
+
+```
 
 0 CONSTANT 0S
 0 INVERT CONSTANT 1S
@@ -504,6 +533,8 @@ T{ 123 456 A-ADDR CELL+ 2!  A-ADDR CELL+ 2@ -> 123 456 }T
 
     COMPILE = r"""
 
+```
+
 T{ : GT1 123 ; -> }T
 T{ ' GT1 EXECUTE -> 123 }T
 T{ : GT2 ['] GT1 ; IMMEDIATE -> }T
@@ -541,6 +572,8 @@ T{ GT7 -> 345 }T
         assert e.root.test["f"] == 0
 
     IF_BEGIN_WHILE_RECURSE = r"""
+
+```
 
 T{ : GI1 IF 123 THEN ; -> }T
 T{ : GI2 IF 123 ELSE 234 THEN ; -> }T
@@ -589,6 +622,8 @@ T{ 6 GI4 -> 6 7 }T
 
     DO_LOOP = r"""
 
+```
+
 T{ : GD1 DO I LOOP ; -> }T
 T{ 4 1 GD1 -> 1 2 3 }T
 T{ 2 -1 GD1 -> -1 0 1 }T
@@ -627,6 +662,8 @@ T{ 6 GD5 -> 234 }T
         assert e.root.test["f"] == 0
 
     DEFINING_WORDS = r"""
+
+```
 
 T{ 123 CONSTANT X123 -> }T
 T{ X123 -> 123 }T
@@ -676,6 +713,8 @@ T{ CR1 @ -> 1 }T
 
     EVALUATE = r"""
 
+```
+
 ( TODO
 
 : GE1 S" 123" ; IMMEDIATE
@@ -702,6 +741,8 @@ T{ GE7 -> 124 }T
         assert e.root.test["f"] == 0
 
     SOURCE = r"""
+
+```
 
 ( TODO
 
@@ -738,6 +779,8 @@ T{ GS4 123 456
         assert e.root.test["f"] == 0
 
     FILL_MOVE = r"""
+
+```
 
 CREATE FBUF 00 C, 00 C, 00 C,
 CREATE SBUF 12 C, 34 C, 56 C,

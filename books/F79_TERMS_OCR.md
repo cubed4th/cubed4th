@@ -1,3 +1,8 @@
+![cubed4th Logo](/images/transparent_half.png)
+
+# cubed4th
+
+FORTH^3, relicensed with permission from https://github.com/p-unity
 
 # -- THE FORTH-79 STANDARD --
 

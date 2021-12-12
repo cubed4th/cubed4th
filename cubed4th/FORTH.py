@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
        ______    ____    _____    _______   _    _     /\   ____
   _   |  ____|  / __ \  |  __ \  |__   __| | |  | |   |/\| |___ \    _
@@ -20,29 +20,57 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 
 
+
+
 """  # __banner__
 
-
 class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
-    def __init__(self, run=None, run_tests=2, **kwargs):
 
-        self.root = TASK(self, root=True)
+    def __init__(self, run=None, run_tests=1, **kwargs):
+
+        stack = kwargs.get('stack', [])
+        memory = kwargs.get('memory', {})
+
+        self.root = TASK(self, root=True, stack=stack, memory=memory)
         self.call = CALL(self)
+        self.tape = None
+
+        self.sandbox = kwargs.get('sandbox', 0)
+
+        self.guards = kwargs.get('guards', "")
+        if not run == None:
+            self.guards = "```"
 
         self.digits = {}
         for digit in "#$%-01234567890":
             self.digits[digit] = True
 
-        def load(self, names):
-            for name in names.split(" "):
+        vis = kwargs.get('vis', None)
+
+        def load(self, vis, names):
+            for name_level in names.split(" "):
+                name, level = tuple(name_level.split(":"))
+                if self.sandbox > 0 and self.sandbox < int(level): continue
                 exec(f"from .WORDS import F_{name}")
                 exec(f"self.{name} = F_{name}.LIB(self, self.root)")
-                exec(f"self.import_lib(self.{name})")
+                exec(f"if vis: vis.before_import('{name}', self.{name})")
+                exec(f"self.import_lib(vis, self.{name})")
+                exec(f"if vis: vis.after_import('{name}', self.{name})")
 
-        load(self, "CORE STACK MATH CONTROL")
-        load(self, "INPUT OUTPUT REPL")
-        load(self, "OBJECT JSON")
-        load(self, "UNICODE CURSES")
+        if vis: vis.before_imports(self)
+
+        # The :num indicates what level of sandbox applies to all words
+
+        load(self, vis, "CORE:1 STACK:1 MATH:1 CONTROL:1")
+        load(self, vis, "INPUT:3 OUTPUT:3 REPL:1")
+        load(self, vis, "OBJECT:1 JSON:1")
+        load(self, vis, "UNICODE:3 CURSES:6")
+
+        load(self, vis, "HTTPS:6")
+
+        load(self, vis, "ECDSA:1 HASHES:1 CHAINS:1")
+
+        if vis: vis.after_imports(self)
 
         for level in [1, 2, 3]:
             if run_tests < level:
@@ -64,6 +92,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
     def raise_RuntimeError(self, details):
         raise ForthRuntimeException(details)
 
+
     symbol_map = {
         "bang": "!",
         "at": "@",
@@ -76,6 +105,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         "under": "_",
         "tilde": "~",
         "minus": "-",
+        "m": "-",
         "plus": "+",
         "pipe": "|",
         "slash": "\\",
@@ -101,6 +131,48 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         "rainbow": "\u1F308",
         "astonished": "\u1F632",
     }
+
+    def __getattr__(self, attr):
+
+        def impl(*args):
+            if attr in self.root.words:
+                depth = len(self.root.stack)
+                self.root.stack.extend(args)
+                self.execute(attr, include=True)
+                result = tuple(self.root.stack[depth:])
+                self.root.stack = self.root.stack[:depth]
+                return result
+            return self.root.memory.get(attr, None)
+
+        return impl
+
+
+    def peek(self, addr, default=None):
+        return self.root.memory.get(addr, default)
+
+    def poke(self, addr, value):
+        self.root.memory[addr] = value
+
+    def save(self, save_memory=True, save_stack=True, save_words=False):
+        self.tape = {}
+        if save_stack:
+            self.tape["stack"] = copy.copy(self.root.stack)
+        if save_memory:
+            self.tape["memory"] = copy.copy(self.root.memory)
+        if save_words:
+            self.tape["words"] = copy.copy(self.root.words)
+        return self.tape
+
+    def load(self):
+        if self.tape:
+            if 'stack' in self.tape:
+                self.root.stack = copy.copy(self.tape["stack"])
+            else:
+                self.root.stack = []
+            if 'memory' in self.tape:
+                self.root.memory = copy.copy(self.tape["memory"])
+            if 'words' in self.tape:
+                self.root.words = copy.copy(self.tape["words"])
 
     def add_word(self, name, code, where=None):
         parts = name.lower().split("_")
@@ -136,6 +208,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
         where.tests[1].append(code.__doc__)
 
+        return name
+
     def add_sigil(self, name, code, where=None):
         parts = name.lower().split("_")
 
@@ -169,7 +243,9 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
         where.tests[1].append(code.__doc__)
 
-    def import_lib(self, source, where=None):
+        return name
+
+    def import_lib(self, vis, source, where=None):
         word_names = []
         sigil_names = []
         for fname in dir(source):
@@ -183,15 +259,37 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
                 sigil = getattr(source, fname)
                 sigil_names.append((sigil.__code__.co_firstlineno, fname))
 
+        def full2short(fname):
+            parts = fname.split("_")
+            name = []
+            meta = None
+            for part in parts:
+                if meta is None:
+                    if part == "":
+                        meta = []
+                        continue
+                else:
+                    meta.append(part)
+                    continue
+
+                name.append(part)
+
+            return "_".join(name)
+
         sigil_names.sort()
         for order, fname in sigil_names:
             code = getattr(source, fname)
-            self.add_sigil(fname[6:], code)
+            tname = self.add_sigil(fname[6:], code)
+            if not vis: continue
+            vis.visit_sigil(code, fname, full2short(fname)[6:], tname)
 
         word_names.sort()
         for order, fname in word_names:
             code = getattr(source, fname)
-            self.add_word(fname[5:], code)
+            tname = self.add_word(fname[5:], code)
+            if not vis: continue
+            vis.visit_word(code, fname, full2short(fname)[5:], tname)
+
 
         if not where:
             where = self.root
@@ -211,9 +309,12 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             return (False, None)
 
         token = token.replace("_", "")
+        if token in ["", "#", "$", "%"]:
+            return (False, None)
 
         base = t.base
         if token[0] == "#":
+            base = 10
             token = token[1:]
         elif token[0] == "$":
             base = 16
@@ -242,6 +343,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
     @staticmethod
     def state_INTERPRET(e, t, c, token):
 
+        # ic(token, t.stack, c.stack)
         if not isinstance(token, str):
             if not isinstance(token, tuple):
                 t.stack.append(token)
@@ -256,6 +358,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
                 e.raise_RuntimeError("!: error(-1): Unknown XT")
 
             return
+
+        if len(token) == 0: return
 
         token_l = token.lower() if isinstance(token, str) else token
 
@@ -344,6 +448,11 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             if c.EXIT:
                 break
 
+    @staticmethod
+    def execute_token(e, t, c, token):
+        if not token in ["#"]:
+            t.state(e, t, c, token)
+
     def execute_tests(self, tests):
         if not tests:
             return
@@ -354,8 +463,12 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             call = CALL(self, self.call)
             for line in test.split("\n"):
                 line = line.strip()
+                call.line = line
                 if line == "" or line[0] in ["#"]:
                     continue
+
+                if line == "--END--":
+                    break
 
                 f_count = task.test["f"]
                 if 1:  # try:
@@ -380,33 +493,58 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.root.test["p"] += task.test["p"]
             self.root.test["f"] += task.test["f"]
 
-    def execute(self, lines):
+    def call(self, method):
+        self.execute(method, include=True)
+
+    def execute(self, lines, guards="", include=False):
+        guards = self.guards if guards == "" else guards
+        include = True if guards == "" else include
         self.call.EXIT = False
-        for line in lines.split("\n"):
+
+        lines = lines.split("\n")
+        while len(lines):
+
+            line = lines.pop(0)
+
             self.root.line += 1
             self.root.lines[self.root.line] = line
-            line = line.strip()
-            if len(line) == 0 or line[0] in ["#"]:
-                continue
 
+            if not guards == "":
+                if line.lstrip()[0:3] == guards[0:3]:
+                    include = ~include
+                    parts = line.split()
+                    if len(parts) > 2:
+                        if parts[1].lower() == ">now>":
+                            guards = parts[2]
+                    continue
+
+            if not include: continue
+
+            self.call.line = line
+            self.call.lines = lines
             self.call.tokens = line.split()
+            if len(self.call.tokens) == 0:
+                self.call.tokens.append("")
+
             while len(self.call.tokens):
                 token = self.call.tokens.pop(0)
                 self.root.state(self, self.root, self.call, token)
                 if self.call.EXIT:
-                    return
+                   return
+
+
 
 
 class TASK:
-    def __init__(self, engine, root=False):
+    def __init__(self, engine, root=False, memory={}, stack=[]):
 
         self.engine = engine
         self.is_root = root
 
-        self.stack = []
+        self.stack = copy.copy(stack)
         self.rstack = []
 
-        self.memory = {}
+        self.memory = copy.copy(memory)
         self.here = 1_000_000 if root else 1
 
         self.sigils = {}
@@ -442,6 +580,7 @@ class CALL:
         self.depth = 0
         self.stack = []
         self.EXIT = False
+        self.FAIL = False
 
     def find_struct(self, name, key="?"):
         call = self
@@ -475,15 +614,20 @@ class ForthSyntaxException(ForthException):
 class ForthRuntimeException(ForthException):
     pass
 
+import copy
 
 from decimal import Decimal
 
 __tests__ = {1: [], 2: [], 3: []}
 
-__tests__[3].append(
+__tests__[1].append(
     """
 
-T{ 0.1 0.2 + -> 0.3 }T
+T{ : GT1 123 ; -> }T
+T{ ' GT1 EXECUTE -> 123 }T
+T{ : GT2 ['] GT1 ; IMMEDIATE -> }T
+
+# T{ 0.1 0.2 + -> 0.3 }T
 
 # T{ 'FOO'BAR' -> (("FOO BAR")) }T
 
@@ -491,14 +635,14 @@ T{ 0.1 0.2 + -> 0.3 }T
 
 # T{ ("--") (.__len__) -> ("--") #2 }T
 
-( : IDE
-CURSES
-0 0 20 20 WINDOW BORDER REFRESH
-GETKEY
-; )
+# ( : IDE
+# CURSES
+# 0 0 20 20 WINDOW BORDER REFRESH
+# GETKEY
+# ; )
 
-: COUNTDOWN    ( n --)
-               BEGIN  CR   DUP  .  1 -   DUP   0  =   UNTIL  DROP  ;
+# : COUNTDOWN    ( n --)
+#                BEGIN  CR   DUP  .  1 -   DUP   0  =   UNTIL  DROP  ;
 
 # 5 COUNTDOWN
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _           _    _____    ____    _   _
   /\| |/\       | |  / ____|  / __ \  | \ | |
@@ -15,6 +15,8 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 
 )
+
+
 
 
 
@@ -37,14 +39,27 @@ class LIB:  # { JavaScript Object Notation : words }
     @staticmethod  ### ARROW ###
     def word_ARROW__R_x(e, t, c):
         import arrow
-
         return (arrow.now(),)
+
+    @staticmethod ### DATETIME ###
+    def word_DATETIME__R_x(e, t, c):
+        import pendulum
+        return (pendulum.now(),)
+
+    @staticmethod ### UTC-ISO ###
+    def word_UTC_m_ISO__R_x(e, t, c):
+        import pendulum
+        return (pendulum.now("UTC").to_iso8601_string(),)
 
     @staticmethod  ### ULID ###
     def word_ULID__R_x(e, t, c):
         import ulid
+        return (str(ulid.ULID())[:-2] + '0Z',)
 
-        return (ulid.ULID(),)
+    @staticmethod  ### KSUID ###
+    def word_KSUID__R_x(e, t, c):
+        import ksuid
+        return (str(ksuid.Ksuid()),)
 
     @staticmethod  ### ([ ###
     def sigil_lparen_lbrack(e, t, c, token, *args, **kwargs):
@@ -101,7 +116,7 @@ class LIB:  # { JavaScript Object Notation : words }
         t.state = e.JSON.state_JSON
 
     @staticmethod  ### JSON-SAVE ###
-    def word_JSON_minus_SAVE__R_s(e, t, c, x):
+    def word_JSON_m_SAVE__R_s(e, t, c, x):
         def encode(_):
             if isinstance(_, complex):
                 return {"__complex__": True, "real": _.real, "imag": _.imag}
@@ -115,7 +130,7 @@ class LIB:  # { JavaScript Object Notation : words }
         )
 
     @staticmethod  ### JSON-LOAD ###
-    def word_JSON_minus_LOAD__R_x(e, t, c, s):
+    def word_JSON_m_LOAD__R_x(e, t, c, s):
         def h(_):
             if "__complex__" in _:
                 return complex(_["real"], _["imag"])
@@ -124,3 +139,31 @@ class LIB:  # { JavaScript Object Notation : words }
         import simplejson
 
         return (simplejson.loads(s, use_decimal=True, object_hook=h),)
+
+
+    @staticmethod  ### JSON-PATH ###
+    def word_JSON_m_PATH__R_x1_x2(e, t, c, x1, s):
+        from jsonpath import JSONPath
+        return (x1,JSONPath(s).parse(x1),)
+
+    @staticmethod  ### JSON-PATH- ###
+    def word_JSON_m_PATH_minus__R_x2(e, t, c, x1, s):
+        from jsonpath import JSONPath
+        return (JSONPath(s).parse(x1),)
+
+    @staticmethod  ### JSON-PATH0 ###
+    def word_JSON_m_PATH_0__R_x1_x2(e, t, c, x1, s):
+        from jsonpath import JSONPath
+        return (x1,JSONPath(s).parse(x1)[0],)
+
+    @staticmethod  ### JSON-PATH0- ###
+    def word_JSON_m_PATH_0_minus__R_x2(e, t, c, x1, s):
+        from jsonpath import JSONPath
+        return (JSONPath(s).parse(x1)[0],)
+
+
+
+
+
+
+

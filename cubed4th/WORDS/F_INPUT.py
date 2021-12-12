@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _      _____   _   _   _____    _    _   _______
   /\| |/\  |_   _| | \ | | |  __ \  | |  | | |__   __|
@@ -20,6 +20,8 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 
 
+
+
 """  # __banner__
 
 
@@ -30,6 +32,12 @@ class LIB:  # { Input / Output : words }
     def __init__(self, e, t, **kwargs):
         pass
 
-    # @staticmethod ### PRINT ###
-    # def word_PRINT__R(e, t, c, x):
-    #    print(x)
+    @staticmethod ### READ-LINES ###
+    def word_READ_m_LINES__R(e, t, c, s):
+        result = []
+        with open(s, 'rt') as f:
+            for l in f.readlines():
+                l = l.strip()
+                if not l == '':
+                    result.append(l)
+        return (result,)

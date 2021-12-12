@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _      __  __              _______   _    _
   /\| |/\  |  \/  |     /\     |__   __| | |  | |
@@ -15,6 +15,8 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 
 )
+
+
 
 
 
@@ -49,8 +51,46 @@ class LIB:  # { Mathematical : words }
 
         return (x1 + x2,)
 
+
+    @staticmethod  ### IN ###
+    def word_IN__R_b(e, t, c, x, s):
+        r"""
+        T{ ({"Key":"Value"}) 'Key IN DROP -> <true> }T
+        """
+        return (x,s in x)
+
+    @staticmethod  ### IN- ###
+    def word_IN_m__R_b(e, t, c, x, s):
+        r"""
+        T{ ({"Key":"Value"}) 'Key IN- -> <true> }T
+        """
+        return (s in x,)
+
+
+    @staticmethod  ### s! ###
+    def word_S_bang__R(e, t, c, x1, x2, x3):
+        r"""
+        T{ ({}) 'Value 'Key s! -> ({"Key":"Value"}) }T
+        """
+        x1[x3] = x2
+        return (x1,)
+
+    @staticmethod  ### s@ ###
+    def word_S_at__R_x1_x3(e, t, c, x1, x2):
+        r"""
+        T{ ({"Key":"Value"}) 'Key s@ -> ({"Key":"Value"}) 'Value }T
+        """
+        return (x1,x1[x2],)
+
+    @staticmethod  ### s@- ###
+    def word_S_at_minus__R_x3(e, t, c, x1, x2):
+        r"""
+        T{ ({"Key":"Value"}) 'Key s@- -> 'Value }T
+        """
+        return (x1[x2],)
+
     @staticmethod  ### - ###
-    def word_minus__R_x3(e, t, c, x1, x2):
+    def word_m__R_x3(e, t, c, x1, x2):
         """
         T{ 1+0j 2+0j - -> -1+0j }T
         T{ ([1,2,3]) 2 - -> ([1,3]) }T
@@ -118,7 +158,7 @@ class LIB:  # { Mathematical : words }
         return (Decimal("Infinity"),)
 
     @staticmethod  ### -INF ###
-    def word_minus_INF__R_n(e, t, c):
+    def word_m_INF__R_n(e, t, c):
         """"""
         return (Decimal("-Infinity"),)
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _       ____    ____         _   ______    _____   _______
   /\| |/\   / __ \  |  _ \       | | |  ____|  / ____| |__   __|
@@ -15,6 +15,8 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 
 )
+
+
 
 
 
@@ -72,15 +74,24 @@ class LIB:  # { The Object ABI : words }
         s1 = ":".join(parts)
         exec(f"e.add_word({s2}, lambda e, t, c{s1})")
 
+    @staticmethod  ### INT ###
+    def word_INT__R_n(e, t, c, s):
+        return (int(s),)
+
     @staticmethod  ### LEN ###
-    def word_LEN__R_x_n(e, t, c, x):
-        "T{ 'Hello'World' LEN -> 11 }T"
-        return (len(x),)
+    def word_LEN__R_n(e, t, c, x):
+        "T{ 'Hello'World' len nip -> 11 }T"
+        return (x, len(x),)
 
     @staticmethod  ### *LEN ###
     def word_times_LEN__R_n(e, t, c, a):
         """"""
         return (len(t.memory[a]),)
+
+    @staticmethod  ### NOT ###
+    def word_NOT__R_b(e, t, c, x):
+        """"""
+        return (not x,)
 
     @staticmethod  ### ~ ###
     def word_tilde__R_b(e, t, c, x):
@@ -136,7 +147,8 @@ class LIB:  # { The Object ABI : words }
         if "a" in struct:
             obj = t.memory[struct["a"]]
         else:
-            obj = t.stack.pop()
+            # leave the object alone, use nip to delete if desired
+            obj = t.stack[-1]
 
         if 2 in struct:
             struct_2 = struct[2]
@@ -162,31 +174,66 @@ class LIB:  # { The Object ABI : words }
 
     @staticmethod  ### (. ###
     def sigil_lparen_dot(e, t, c, token, start=False):
+        """
+        T{ 'FOO DUP (.__len__) -> 'FOO 3 }T
+        """
         end = token[-1] == ")"
         if end:
-            token = token[:-1]
-
-        start = True if t.state == e.state_INTERPRET else False
-        if start:
-            token = token[2:]
-            struct = {"?": "()", ".": token, "*": [], "**": {}, "r": t.state}
-            c.stack.append(struct)
-            t.state = e.OBJECT.sigil_lparen_dot
-        else:
-            struct = c.stack[-1]
-
-        if end:
-            c.stack.pop()
-
-            obj = t.stack[-1]
-            code = getattr(obj, struct["."])
-            args = tuple(struct["*"])
-            kwargs = struct["**"]
-            result = code(*args, **kwargs)
+            obj = t.stack.pop()
+            code = getattr(obj, token[2:-1])
+            result = code()
             if isinstance(result, tuple):
                 t.stack.extend(result)
             else:
                 t.stack.append(result)
 
-            t.state = struct["r"]
             return
+
+        c.stack.append({"?": "()", ".": token[2:], "d":len(t.stack)})
+
+    @staticmethod  ### ) ###
+    def word_rparen__R_x(e, t, c):
+        """
+        T{ 'FOO (.replace 'O 'J ) -> 'FOO 'FJJ }T
+        """
+        LIB.impl_rparen_R_x(e, t, c, pop_obj=False)
+
+    @staticmethod  ### )- ###
+    def word_rparen_minus__R_x(e, t, c):
+        """
+        T{ 'FOO (.replace 'O 'J )- -> 'FJJ }T
+        """
+        LIB.impl_rparen_R_x(e, t, c, pop_obj=True)
+
+
+    @staticmethod  ### )- ###
+    def impl_rparen_R_x(e, t, c, pop_obj):
+
+        struct = c.stack.pop()
+        assert struct["?"] == "()"
+
+        args = t.stack[struct["d"]:]
+        args.extend(tuple(struct.get("*",[])))
+        t.stack = t.stack[:struct["d"]]
+
+        kwargs = struct.get("**", {})
+
+        if pop_obj:
+            obj = t.stack.pop()
+        else:
+            obj = t.stack[-1]
+
+        code = getattr(obj, struct["."])
+        result = code(*args, **kwargs)
+        if isinstance(result, tuple):
+            t.stack.extend(result)
+        else:
+            t.stack.append(result)
+
+
+
+
+
+
+
+

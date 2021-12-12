@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _       _____   _    _   _____     _____   ______    _____
   /\| |/\   / ____| | |  | | |  __ \   / ____| |  ____|  / ____|
@@ -15,6 +15,8 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 
 )
+
+
 
 
 
@@ -43,7 +45,7 @@ class LIB:  # { CURSES Text Interface : words }
         import curses
 
     @staticmethod  ### KEY-MAP ###
-    def word_KEY_minus_MAP__R_x(e, t, c):
+    def word_KEY_m_MAP__R_x(e, t, c):
         return (KEY_MAP,)
 
     @staticmethod  ### WINDOW ###

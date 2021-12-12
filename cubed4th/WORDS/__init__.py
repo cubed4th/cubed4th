@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
                   _           _   _
                  (_)         (_) | |
@@ -15,6 +15,8 @@ __banner__ = r""" ( This string is also the module initilizer program.
  |______|______|                       |______|______|     |_|      |___/
 
 )
+
+
 
 
 

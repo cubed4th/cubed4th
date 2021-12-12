@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
          _   _            ______    ____    _____    _______    _    _
         | | (_)          |  ____|  / __ \  |  __ \  |__   __|  | |  | |
@@ -20,9 +20,11 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 
 
+
+
 """  # __banner__
 
-__version__ = "1.1.20210725000000"
+__version__ = "2.0.20211212"
 
 class IDE:  # { The p-unity IDE: Intergrated Development Environment }
     def __init__(self, run=None, **kwargs):
@@ -85,7 +87,7 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
         e.add_word("EXIT()", S)
 
         if run:
-            e.execute(run)
+            e.execute(run, guards="```")
             return
 
         v = ["cubed4th " + __version__]
@@ -111,7 +113,7 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
 
             print("=>", end="")
             for object in e.root.stack:
-                object = str(object)
+                object = repr(object)
                 print(f" {object}", end="")
 
             print()

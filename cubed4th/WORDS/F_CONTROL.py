@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneInter.net
+# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
 
-__banner__ = r""" ( This string is also the module initilizer program.
+__banner__ = r""" (
 
      _       _____    ____    _   _   _______   _____     ____    _
   /\| |/\   / ____|  / __ \  | \ | | |__   __| |  __ \   / __ \  | |
@@ -15,6 +15,8 @@ __banner__ = r""" ( This string is also the module initilizer program.
 
 
 )
+
+
 
 
 
@@ -57,8 +59,16 @@ class LIB:  # { Control Flow : words }
     def word_EXIT__R(e, t, c):
         c.EXIT = True
 
+    @staticmethod  ### STOP ###
+    def word_STOP__R(e, t, c):
+        c.EXIT = True
+        p = c.parent
+        while p:
+            p.EXIT = True
+            p = p.parent
+
     @staticmethod  ### V ###
-    def word_V__R_x(e, t, c):
+    def word_V__2R_x(e, t, c):
         call = c
         while call:
             for index in range(-1, (len(call.stack) * -1) - 1, -1):
@@ -277,6 +287,8 @@ class LIB:  # { Control Flow : words }
             e.execute_tokens(e, t, c, block[0])
 
         t.state = block["r"]
+
+
 
     @staticmethod  ### IF ###
     def word_IF__R(e, t, c, b):
