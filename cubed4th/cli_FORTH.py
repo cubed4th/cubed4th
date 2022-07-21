@@ -107,7 +107,7 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
 
             print(" > ", end="")
             line = input("")
-            line = line.strip()
+            #line = line.strip()
 
             e.execute(line)
 

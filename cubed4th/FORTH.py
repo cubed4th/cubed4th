@@ -507,7 +507,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             line = lines.pop(0)
 
             self.root.line += 1
-            self.root.lines[self.root.line] = line
+            # self.root.lines[self.root.line] = line
 
             if not guards == "":
                 if line.lstrip()[0:3] == guards[0:3]:
