@@ -33,7 +33,17 @@ class LIB:  # { CORE : words }
 
     @staticmethod  ### ( ###
     def sigil_lparen(e, t, c, token, start=False):
+        """
 
+        --END--
+        # (
+
+        ( "ccc<paren>" -- )
+
+        Parse ccc delimited by ) (right parenthesis). ( is an immediate word.
+
+        The number of characters in ccc may be zero to the number of characters in the parse area.
+        """
         if isinstance(token, str) and len(token) and token[-1] == ")":
             t.state = e.state_INTERPRET
             return
@@ -43,6 +53,14 @@ class LIB:  # { CORE : words }
 
     @staticmethod  ### ((( ###
     def sigil_lparen_lparen_lparen(e, t, c, token, start=False):
+        """
+        --END--
+        ((( "ccc<paren>" -- )))
+
+        Parse ccc delimited by ))) (right parenthesis). ((( is an immediate word.
+
+        The number of characters in ccc may be zero to the number of characters in the parse area.
+        """
 
         if isinstance(token, str) and len(token) and token[-3:] == ")))":
             t.state = e.state_INTERPRET
@@ -52,49 +70,90 @@ class LIB:  # { CORE : words }
 
 
     @staticmethod  ### \ ###
-    def sigil_slash(e, t, c, token, start=False):
+    def sigil_slash__I(e, t, c, token, start=False):
+        """
+        --END--
+        ( "ccc<eol>" -- )
+
+        Parse and discard the remainder of the parse area. \ is an immediate word.
+        """
         c.tokens = []
 
     @staticmethod  ### # ###
-    def word_hash(e, t, c):
+    def word_hash__I(e, t, c):
+        """
+        --END--
+        ( "ccc<eol>" -- )
+
+        Parse and discard the remainder of the parse area. # is an immediate word.
+        """
         c.tokens = []
 
     @staticmethod  ### A{ ###
     def word_A_lbrace(e, t, c):
+        """
+        --END--
+        ( -- )
+
+        Record the pre-assert state.
+        """
         stack = copy.deepcopy(t.stack)
         c.stack.append({"?": "TEST", "STACK": t.stack, "ASSERT": True})
         t.stack = stack
 
     @staticmethod  ### T{ ###
     def word_T_lbrace(e, t, c):
+        """
+        --END--
+        ( -- )
+
+        Record the pre-test state.
+        """
         stack = copy.deepcopy(t.stack)
         c.stack.append({"?": "TEST", "STACK": t.stack})
         t.stack = stack
 
-    @staticmethod  ### T{! ###
-    def word_T_lbrace_bang(e, t, c):
-        stack = copy.deepcopy(t.stack)
-        c.stack.append({"?": "TEST!", "STACK": t.stack})
-        t.stack = stack
 
     @staticmethod  ### -> ###
     def word_m_rangle(e, t, c):
+        """
+        --END--
+        ( ... -- )
+
+        Record depth and contents of stack.
+        """
         block = c.stack[-1]
         block["HAVE"] = t.stack[len(block["STACK"]) :]
         t.stack = copy.deepcopy(block["STACK"])
 
     @staticmethod  ### --END-- ###
     def word_m_minus_END_m_minus__R(e, t, c):
-        #block = c.stack[-1]
-        #block["END"] = True
+        """
+        --END--
+        ( -- )
+
+        Marks the end of a block.
+        """
         pass
 
     @staticmethod  ### }A ###
     def word_rbrace_A(e, t, c):
+        """
+        --END--
+        ( ... -- )
+
+        Comapre stack (expected) contents with saved.
+        """
         LIB.word_rbrace_T(e, t, c)
 
     @staticmethod  ### }T ###
     def word_rbrace_T(e, t, c):
+        """
+        --END--
+        ( ... -- )
+
+        Comapre stack (expected) contents with saved.
+        """
         block = c.stack.pop()
         assert block["?"] == "TEST"
 
@@ -134,6 +193,12 @@ class LIB:  # { CORE : words }
 
     @staticmethod  ### TESTING ###
     def word_TESTING__R(e, t, c):
+        """
+        --END--
+        ( -- )
+
+        Testing comment.
+        """
         c.stack.append({"?": "TESTING", "LINE": t.line, "r": t.state})
         t.state = LIB.state_TESTING
 
@@ -148,13 +213,30 @@ class LIB:  # { CORE : words }
         t.state = struct["r"]
         t.state(e, t, c, token)
 
+    @staticmethod  ### TRUE ###
+    def word_TRUE__R_b(e, t, c):
+        """
+        T{ <TRUE> -> 0 INVERT }T
+        """
+        return (True,)
+
     @staticmethod  ### <TRUE> ###
     def word_langle_TRUE_rangle__R_b(e, t, c):
         return (True,)
 
+    @staticmethod  ### FALSE ###
+    def word_FALSE__R_b(e, t, c):
+        """
+        T{ <FALSE> -> 1 NOT }T
+        T{ <FALSE> -> 123 NOT }T
+        """
+        return (False,)
+
     @staticmethod  ### <FALSE> ###
     def word_langle_FALSE_rangle__R_b(e, t, c):
-        "T{ <FALSE> -> <FALSE> }T"
+        """
+        T{ <FALSE> -> <FALSE> }T
+        """
         return (False,)
 
     @staticmethod  ### <NONE> ###

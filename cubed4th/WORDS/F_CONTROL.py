@@ -247,7 +247,6 @@ class LIB:  # { Control Flow : words }
 
         if struct[0] == 1:
             while True:
-                print(t.stack, struct[1])
                 e.execute_tokens(e, t, c, struct[1])
                 b = t.stack.pop()
                 if b:
@@ -255,7 +254,6 @@ class LIB:  # { Control Flow : words }
 
         if struct[0] == 2:
             while True:
-                print(t.stack, struct[1], struct[2])
                 e.execute_tokens(e, t, c, struct[1])
                 b = t.stack.pop()
                 if not b:

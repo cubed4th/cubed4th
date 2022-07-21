@@ -55,6 +55,8 @@ class DOC:
             print(v.to_code[name].__doc__)
 
             print()
+            print(data.get("text", ""))
+            print()
 
             fname = v.to_code[name].__code__.co_filename
             if not fname in files:
@@ -103,17 +105,20 @@ class DOC:
 
                 text = ''
                 for t in soup.find_all(text=True):
+                    print("t = ", t)
                     text += '{} '.format(t)
+
+                #print("----")
+                #print(text)
+                #print("----")
 
                 text = text.strip()
                 for x in range(0, 10):
                     text = text.replace("  ", " ")
 
-                text = text.replace("\n ", "\n")
+                text = text.replace("\n\n", " ")
+                text = text.replace("\n", " ")
 
-                text = text.replace("\n\n", "~~")
-                text = text.replace("\n", "")
-                text = text.replace("~~", "\n\n")
 
                 for o in ['n', 'x', 'u']:
                     for i in ['1', '2', '3', '4']:
@@ -128,6 +133,8 @@ class DOC:
                 help["url"] = f"https://forth-standard.org/standard/{k}/{k1}"
 
                 help["en"] = v1.get('english', None)
+                if help["en"] == "NBSP":
+                    help["en"] = v1.get('name', None)
 
                 all_help[v1['name'].lower()] = help
 

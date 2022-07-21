@@ -46,6 +46,11 @@ class LIB:  # { JavaScript Object Notation : words }
         import pendulum
         return (pendulum.now(),)
 
+    @staticmethod ### UTC ###
+    def word_UTC__R_x(e, t, c):
+        import pendulum
+        return (pendulum.now("UTC"),)
+
     @staticmethod ### UTC-ISO ###
     def word_UTC_m_ISO__R_x(e, t, c):
         import pendulum

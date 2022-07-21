@@ -16,7 +16,7 @@ __banner__ = r""" (
                     |______|
 )
 
-
+See footer for (c)
 
 
 
@@ -34,7 +34,6 @@ class TestFORTH:
         : hello 'World ;
         """
         e = FORTH.Engine(run=self.test_0000.__doc__, **self.options)
-        print e.hello
         assert e.root.stack == [1, 2, 3]
         assert e.root.memory == {}
         assert e.root.test["f"] == 0
