@@ -43,8 +43,11 @@ def run(file, docs):
     if file:
         file = open(file, "rt").read()
 
-    import cubed4th.cli_FORTH
-    cubed4th.cli_FORTH.ide_stdio(run=file)
+    #import cubed4th.cli_FORTH
+    #cubed4th.cli_FORTH.ide_stdio(run=file)
+
+    from cubed4th.gui_FORTH import gui_start
+    gui_start(run=file)
 
 
 if __name__ == "__main__":

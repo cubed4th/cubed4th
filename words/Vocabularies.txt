@@ -1,8 +1,0 @@
-CONTEXT ( - addr )  System variable for pointing to vocabulary where word names are searched for.
-CURRENT ( - addr )  System variable for pointing to vocabulary where new definitions are put.
-FORTH   ( - )   Main vocabulary, contained in all other vocabularies. Execution of FORTH sets context vocabulary.
-DEFINITIONS ( - )   Sets CURRENT vocabulary to CONTEXT.
- ' xxx  ( - addr )  Find address of xxx in dictionary if used in definition, compile address. "tick"
-FIND    ( - addr )  Leave compilation address of next word in input stream. If not found in CONTEXT or FORTH, leave 0.
-FORGET xxx  ( - )   Forget all definitions back to and including xxx, which must be in CURRENT or FORTH.
-

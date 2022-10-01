@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
+# Copyright (c) 2021 - 2023, Scott.McCallum@HQ.UrbaneINTER.NET
 
 __banner__ = r""" (
 
@@ -33,7 +33,7 @@ class LIB:  # { Input / Output : words }
         pass
 
     @staticmethod ### READ-LINES ###
-    def word_READ_m_LINES__R(e, t, c, s):
+    def word_READ_m_LINES__R_l(e, t, c, s):
         result = []
         with open(s, 'rt') as f:
             for l in f.readlines():
@@ -41,3 +41,10 @@ class LIB:  # { Input / Output : words }
                 if not l == '':
                     result.append(l)
         return (result,)
+
+    @staticmethod ### LOAD-FILE ###
+    def word_LOAD_m_FILE__R(e, t, c, s):
+        with open(s, 'rt') as f:
+            lines = f.readlines()
+            e.execute(lines)
+

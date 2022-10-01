@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
+# Copyright (c) 2021 - 2023, Scott.McCallum@HQ.UrbaneINTER.NET
 
 __banner__ = r""" (
 
@@ -35,7 +35,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         self.call = CALL(self)
         self.tape = None
 
-        self.sandbox = kwargs.get('sandbox', 0)
+        self.sandbox = kwargs.get('sandbox', 9)
 
         self.guards = kwargs.get('guards', "")
         if not run == None:
@@ -61,14 +61,12 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
         # The :num indicates what level of sandbox applies to all words
 
-        load(self, vis, "CORE:1 STACK:1 MATH:1 CONTROL:1")
-        load(self, vis, "INPUT:3 OUTPUT:3 REPL:1")
-        load(self, vis, "OBJECT:1 JSON:1")
-        load(self, vis, "UNICODE:3 CURSES:6")
-
-        load(self, vis, "HTTPS:6")
-
-        load(self, vis, "ECDSA:1 HASHES:1 CHAINS:1")
+        load(self, vis, "CORE:0 STACK:0 MATH:0 CONTROL:0 HTML:0 DPG:0")
+        load(self, vis, "OBJECT:1 JSON:1 REPL:1")
+        load(self, vis, "ECDSA:2 HASHES:2 CHAINS:2 UNICODE:2")
+        load(self, vis, "INPUT:3 OUTPUT:3")
+        load(self, vis, "HTTPS:8")
+        load(self, vis, "OS:9")
 
         if vis: vis.after_imports(self)
 
@@ -153,7 +151,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
     def poke(self, addr, value):
         self.root.memory[addr] = value
 
-    def save(self, save_memory=True, save_stack=True, save_words=False):
+    def save(self, save_memory=False, save_stack=False, save_words=True):
         self.tape = {}
         if save_stack:
             self.tape["stack"] = copy.copy(self.root.stack)
@@ -161,6 +159,10 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.tape["memory"] = copy.copy(self.root.memory)
         if save_words:
             self.tape["words"] = copy.copy(self.root.words)
+            self.tape["word_argc"] = copy.copy(self.root.word_argc)
+            self.tape["word_does"] = copy.copy(self.root.word_does)
+            self.tape["word_immediate"] = copy.copy(self.root.word_immediate)
+
         return self.tape
 
     def load(self):
@@ -173,6 +175,9 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
                 self.root.memory = copy.copy(self.tape["memory"])
             if 'words' in self.tape:
                 self.root.words = copy.copy(self.tape["words"])
+                self.root.word_argc = copy.copy(self.tape["word_argc"])
+                self.root.word_does = copy.copy(self.tape["word_does"])
+                self.root.word_immediate = copy.copy(self.tape["word_immediate"])
 
     def add_word(self, name, code, where=None):
         parts = name.lower().split("_")
@@ -229,15 +234,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         name = "".join(name)
         where = where if where else self.root
 
-        if name in where.word_immediate:
-            del where.sigil_immediate[name]
-
-        if meta is not None:
-            if "i" in meta[0]:
-                where.sigil_immediate[name] = True
-
-        #  if name in where:
-        #      raise ForthException(f"{name}: error(-4): Sigil Already Defined")
+        if name in where.sigils:
+            raise ForthException(f"{name}: error(-4): Sigil Already Defined")
 
         where.sigils[name] = code
 
@@ -373,6 +371,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
     @staticmethod
     def run(e, t, c, token, token_l=None):
 
+        if token_l == None: token_l = token.lower()
+
         if isinstance(token, tuple):
 
             if len(token) == 1:
@@ -444,14 +444,58 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         for token in tokens:
             if token in ["#"]:
                 break
+            if token in [""]:
+                continue
             t.state(e, t, c, token)
             if c.EXIT:
                 break
 
     @staticmethod
     def execute_token(e, t, c, token):
-        if not token in ["#"]:
+        if not token in ["#", ""]:
             t.state(e, t, c, token)
+
+    def call(self, method):
+        self.execute(method, include=True)
+
+    def execute(self, lines, guards="", include=False):
+        guards = self.guards if guards == "" else guards
+        include = True if guards == "" else include
+        self.call.EXIT = False
+
+        if isinstance(lines, str):
+            lines = lines.split("\n")
+
+        while len(lines):
+
+            line = lines.pop(0)
+
+            self.root.line += 1
+            # self.root.lines[self.root.line] = line
+
+            if not guards == "":
+                if line.lstrip()[0:3] == guards[0:3]:
+                    include = ~include
+                    parts = line.split()
+                    if len(parts) > 2:
+                        if parts[1].lower() == ">now>":
+                            guards = parts[2]
+                    continue
+
+            if not include: continue
+
+            self.call.line = line
+            self.call.lines = lines
+            self.call.tokens = line.split()
+            if len(self.call.tokens) == 0:
+                self.call.tokens.append("")
+
+            while len(self.call.tokens):
+                token = self.call.tokens.pop(0)
+                self.root.state(self, self.root, self.call, token)
+                if self.call.EXIT:
+                   return
+
 
     def execute_tests(self, tests):
         if not tests:
@@ -488,51 +532,10 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
                 #        task.test["f"] += 1
 
                 if not f_count == task.test["f"]:
-                    print("!!! ", line)
+                    print("!! ", line)
 
             self.root.test["p"] += task.test["p"]
             self.root.test["f"] += task.test["f"]
-
-    def call(self, method):
-        self.execute(method, include=True)
-
-    def execute(self, lines, guards="", include=False):
-        guards = self.guards if guards == "" else guards
-        include = True if guards == "" else include
-        self.call.EXIT = False
-
-        lines = lines.split("\n")
-        while len(lines):
-
-            line = lines.pop(0)
-
-            self.root.line += 1
-            # self.root.lines[self.root.line] = line
-
-            if not guards == "":
-                if line.lstrip()[0:3] == guards[0:3]:
-                    include = ~include
-                    parts = line.split()
-                    if len(parts) > 2:
-                        if parts[1].lower() == ">now>":
-                            guards = parts[2]
-                    continue
-
-            if not include: continue
-
-            self.call.line = line
-            self.call.lines = lines
-            self.call.tokens = line.split()
-            if len(self.call.tokens) == 0:
-                self.call.tokens.append("")
-
-            while len(self.call.tokens):
-                token = self.call.tokens.pop(0)
-                self.root.state(self, self.root, self.call, token)
-                if self.call.EXIT:
-                   return
-
-
 
 
 class TASK:
@@ -548,7 +551,6 @@ class TASK:
         self.here = 1_000_000 if root else 1
 
         self.sigils = {}
-        self.sigil_immediate = {}
 
         self.words = {}
         self.word_argc = {}
@@ -578,6 +580,11 @@ class CALL:
         self.parent = parent
         self.tokens = []
         self.depth = 0
+        if False and parent:
+            self.depth = parent.depth + 1
+            if self.depth >= 4:
+                raise ForthSandboxException("Call stack > 3 levels")
+
         self.stack = []
         self.EXIT = False
         self.FAIL = False
@@ -612,6 +619,9 @@ class ForthSyntaxException(ForthException):
 
 
 class ForthRuntimeException(ForthException):
+    pass
+
+class ForthSandboxException(ForthException):
     pass
 
 import copy

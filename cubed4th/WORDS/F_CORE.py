@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
+# Copyright (c) 2021 - 2023, Scott.McCallum@HQ.UrbaneINTER.NET
 
 __banner__ = r""" (
 
@@ -15,12 +15,11 @@ __banner__ = r""" (
 
 
 )
+
 # : ; ' ." ! @ @NONE CREATE HERE ALLOT
 # VARIABLE CONSTANT VALUE TO LOCALS| |
 # 1+ 1- 2+ 2- <TRUE> <FALSE>
 # .>> <<.
-
-
 
 
 """  # __banner__
@@ -70,7 +69,7 @@ class LIB:  # { CORE : words }
 
 
     @staticmethod  ### \ ###
-    def sigil_slash__I(e, t, c, token, start=False):
+    def sigil_slash(e, t, c, token, start=False):
         """
         --END--
         ( "ccc<eol>" -- )
@@ -362,10 +361,23 @@ World
         t.state = LIB.state_multi_line_string
 
 
+    @staticmethod  ### S""\n ###
+    def word_S_quote_quote_slash_N(e, t, c):
+        """
+        """
+        c.stack.append({"m": "S_QUOTE_QUOTE", 1: ['']})
+        c.tokens = []
+        t.state = LIB.state_multi_line_string
+
+
     @staticmethod
     def state_multi_line_string(e, t, c, token):
-        end = token == "\"\"S"
         block = c.stack[-1]
+        end = token == "\\n\"\"S"
+        if end:
+            block[1].append("")
+        else:
+            end = token == "\"\"S"
         if end:
             c.stack.pop()
             t.stack.append("\n".join(block[1]))

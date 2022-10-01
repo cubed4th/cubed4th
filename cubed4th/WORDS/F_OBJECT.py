@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
+# Copyright (c) 2021 - 2023, Scott.McCallum@HQ.UrbaneINTER.NET
 
 __banner__ = r""" (
 
@@ -49,6 +49,10 @@ class LIB:  # { The Object ABI : words }
     def __init__(self, e, t, **kwargs):
         pass
 
+    @staticmethod  ### {} ###
+    def word_lbrace_rbrace__R_d(e, t, c):
+        return ({},)
+
     @staticmethod  ### PYTHON ###
     def word_PYTHON__R(e, t, c, s1):
 
@@ -73,6 +77,53 @@ class LIB:  # { The Object ABI : words }
         parts[0] = ", " + parts[0] if len(parts[0]) else parts[0]
         s1 = ":".join(parts)
         exec(f"e.add_word({s2}, lambda e, t, c{s1})")
+
+    @staticmethod  ### }. ###
+    def sigil_rbrace_dot(e, t, c, token, start=False):
+        name, value = tuple(token.split('=', 1))
+        name = name[2:]
+
+        value = " ".join(value.split("'"))
+        if value == "":
+            value = t.stack.pop()
+
+        else:
+
+            def h(values):
+                if "__complex__" in values:
+                    return complex(values["real"], values["imag"])
+                return values
+
+            import simplejson
+            value = simplejson.loads(value, use_decimal=True, object_hook=h)
+
+        t.stack[-1][name] = value
+
+
+    @staticmethod  ### @}. ###
+    def sigil_at_rbrace_dot(e, t, c, token, start=False):
+
+        key = t.stack[-1]
+        t.stack = t.stack[:-1]
+
+        obj = t.memory.get(key, {})
+        t.memory[key] = obj
+
+        name, value = tuple(token.split('=', 1))
+        name = name[3:]
+
+        value = " ".join(value.split("'"))
+
+        def h(values):
+            if "__complex__" in values:
+                return complex(values["real"], values["imag"])
+            return values
+
+        import simplejson
+        value = simplejson.loads(value, use_decimal=True, object_hook=h)
+
+        obj[name] = value
+
 
     @staticmethod  ### INT ###
     def word_INT__R_n(e, t, c, s):
@@ -213,8 +264,10 @@ class LIB:  # { The Object ABI : words }
         assert struct["?"] == "()"
 
         args = t.stack[struct["d"]:]
-        args.extend(tuple(struct.get("*",[])))
+        #args.extend(tuple(struct.get("*",[])))
         t.stack = t.stack[:struct["d"]]
+
+        #print("stack_after = ", repr(t.stack))
 
         kwargs = struct.get("**", {})
 
@@ -223,8 +276,11 @@ class LIB:  # { The Object ABI : words }
         else:
             obj = t.stack[-1]
 
-        code = getattr(obj, struct["."])
-        result = code(*args, **kwargs)
+        if struct["."] == "":
+            result = obj.__call__(*args, **kwargs)
+        else:
+            code = getattr(obj, struct["."])
+            result = code(*args, **kwargs)
         if isinstance(result, tuple):
             t.stack.extend(result)
         else:

@@ -1,9 +1,0 @@
-LIST    ( n - ) List screen n and set SCR to contain n.
-LOAD    ( n - ) Interpref screen n, then resume interpretation of the current input stream.
-SCR ( - ad dr ) System variable containing screen number most recently listed.
-BLOCK   ( n - addr )    Leave memory address of block, reading from mass storage if necessary.
-UPDATE  ( - )   Mark last block referenced as modified.
-BUFFER  ( n - addr )    Leave addr of a free buffer, assigned to block n, write previous contents to mass storage if UPDATEd
-SAVE-BUFFERS    ( - )   Write all UPDATEd blocks to mass storage.
-EMPTY-BUFFERS   ( - )   Mark all block buffers as empty, without writing UPDATEd blocks to mass storage.
-
