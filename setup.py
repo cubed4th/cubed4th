@@ -42,10 +42,10 @@ setuptools.setup(
     description=": cubed4th 'PYTHON 'FORTH 'OOP + * 3 ^ ;",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/sno-ware/cubed4th",
+    url="https://github.com/cubed4th/cubed4th",
     packages=setuptools.find_packages(),
     install_requires=[
-        "simplejson"
+        "simplejson", "jsonschema"
     ],
     entry_points={"console_scripts": ["c4=cubed4th.cli_FORTH:ide_stdio"]},
     classifiers=[

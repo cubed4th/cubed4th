@@ -1,7 +1,24 @@
 
 ```
 
-: on-press:btn2 . CR 'FOOBARBAZ . CR ;
+: special_code 
+
+'Expecting'2: . CR
+PRIV . CR 
+CR
+
+;
+
+: on-press:btn2 . CR ( Prints 55 ) 
+
+CR
+'Expecting'1: . CR
+PRIV . CR 
+CR
+
+(.ring 2 {} )ACL:special_code
+
+;
 
 : win1
 
@@ -17,9 +34,9 @@
         V }.label=
         )dpg?
 
-    LOOP
+        'button'id'=' . . cr
 
-    'button'id'=' . . cr
+    LOOP
 
     {} }.label="float" }.default_value=0.273 }.max_value=1 'settings !
     (.add_slider_float 'settings @ )dpg

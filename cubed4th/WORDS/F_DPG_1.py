@@ -79,7 +79,7 @@ class LIB:  # { JavaScript Object Notation : words }
         kwargs["user_data"] = e
 
         import ulid
-        kwargs["tag"] = str(ulid.ULID())[:-2] + '0T'
+        kwargs["tag"] = str(ulid.ULID())[:-4] + '0DPG'
 
         import dearpygui.dearpygui as dpg
         code = getattr(dpg, struct["."])
@@ -106,7 +106,7 @@ class LIB:  # { JavaScript Object Notation : words }
             args = ()
 
         import ulid
-        kwargs["tag"] = str(ulid.ULID())[:-2] + '0T'
+        kwargs["tag"] = str(ulid.ULID())[:-4] + '0DPG'
 
         if struct["."] in ["window"]:
             kwargs["user_data"] = e

@@ -55,9 +55,9 @@ class LIB:  # { Control Flow : words }
     def __init__(self, e, t, **kwargs):
         pass
 
-    @staticmethod  ### EXIT ###
-    def word_EXIT__R(e, t, c):
-        c.EXIT = True
+    #@staticmethod  ### EXIT ###
+    #def word_EXIT__R(e, t, c):
+    #    c.EXIT = True
 
     @staticmethod  ### STOP ###
     def word_STOP__R(e, t, c):

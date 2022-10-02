@@ -68,26 +68,26 @@ class LIB:  # { JavaScript Object Notation : words }
 
     @staticmethod  ### ([ ###
     def sigil_lparen_lbrack(e, t, c, token, *args, **kwargs):
-        e.JSON.state_JSON(e, t, c, token, *args, **kwargs)
+        e.JSON_1.state_JSON(e, t, c, token, *args, **kwargs)
 
     @staticmethod  ### ({ ###
     def sigil_lparen_lbrace(e, t, c, token, *args, **kwargs):
-        e.JSON.state_JSON(e, t, c, token, *args, **kwargs)
+        e.JSON_1.state_JSON(e, t, c, token, *args, **kwargs)
 
     @staticmethod  ### (( ###
     def sigil_lparen_lparen(e, t, c, token, *args, **kwargs):
-        e.JSON.state_JSON(e, t, c, token, *args, **kwargs)
+        e.JSON_1.state_JSON(e, t, c, token, *args, **kwargs)
 
     @staticmethod  ### (" ###
     def sigil_lparen_quote(e, t, c, token, *args, **kwargs):
-        e.JSON.state_JSON(e, t, c, token, *args, **kwargs)
+        e.JSON_1.state_JSON(e, t, c, token, *args, **kwargs)
 
     @staticmethod
     def state_JSON(e, t, c, token, start=False):
         end = token[-1] == ")"
         if end:
             token = token[:-1]
-        if not t.state == e.JSON.state_JSON:
+        if not t.state == e.JSON_1.state_JSON:
             mode = token[1]
             c.stack.append({"JSON": [], "MODE": mode})
             token = token[1:]
@@ -118,7 +118,7 @@ class LIB:  # { JavaScript Object Notation : words }
             t.state = e.state_INTERPRET
             return
 
-        t.state = e.JSON.state_JSON
+        t.state = e.JSON_1.state_JSON
 
     @staticmethod  ### JSON-SAVE ###
     def word_JSON_m_SAVE__R_s(e, t, c, x):

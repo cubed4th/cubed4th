@@ -24,6 +24,25 @@ __banner__ = r""" (
 
 """  # __banner__
 
+from decimal import Decimal
+from attrs import asdict, define, Factory
+import copy
+import contextvars
+
+priv_level_var = contextvars.ContextVar('priv_level', default=1)
+
+class ForthException(Exception):
+    pass
+
+class ForthSyntaxException(ForthException):
+    pass
+
+class ForthRuntimeException(ForthException):
+    pass
+
+class ForthSandboxException(ForthException):
+    pass
+
 class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
     def __init__(self, run=None, run_tests=1, **kwargs):
@@ -35,7 +54,16 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         self.call = CALL(self)
         self.tape = None
 
-        self.sandbox = kwargs.get('sandbox', 9)
+        self.ring = []
+        for level in range(0,10):
+            self.ring.append(RING(level))
+
+        self.priv_level_var = priv_level_var
+
+        self.sandbox = priv_level_var.get()
+
+        with PRIV(2):
+            pass
 
         self.guards = kwargs.get('guards', "")
         if not run == None:
@@ -48,25 +76,25 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         vis = kwargs.get('vis', None)
 
         def load(self, vis, names):
-            for name_level in names.split(" "):
-                name, level = tuple(name_level.split(":"))
-                if self.sandbox > 0 and self.sandbox < int(level): continue
+            for name in names.split(" "):
+                level = int(name.split("_")[-1])
+                #if self.sandbox > 0 and self.sandbox < int(level): continue
                 exec(f"from .WORDS import F_{name}")
                 exec(f"self.{name} = F_{name}.LIB(self, self.root)")
                 exec(f"if vis: vis.before_import('{name}', self.{name})")
-                exec(f"self.import_lib(vis, self.{name})")
+                exec(f"self.import_lib(vis, self.{name}, level=level)")
                 exec(f"if vis: vis.after_import('{name}', self.{name})")
 
         if vis: vis.before_imports(self)
 
-        # The :num indicates what level of sandbox applies to all words
-
-        load(self, vis, "CORE:0 STACK:0 MATH:0 CONTROL:0 HTML:0 DPG:0")
-        load(self, vis, "OBJECT:1 JSON:1 REPL:1")
-        load(self, vis, "ECDSA:2 HASHES:2 CHAINS:2 UNICODE:2")
-        load(self, vis, "INPUT:3 OUTPUT:3")
-        load(self, vis, "HTTPS:8")
-        load(self, vis, "OS:9")
+        load(self, vis, "CORE_0 STACK_0 MATH_0 CONTROL_0")
+        load(self, vis, "OBJECT_1 JSON_1 REPL_1 HTML_1 DPG_1 API_1 OS_1")
+        load(self, vis, "ECDSA_2 HASHES_2 CHAINS_2 UNICODE_2")
+        load(self, vis, "INPUT_3 OUTPUT_3")
+        load(self, vis, "HTTPS_6")
+        load(self, vis, "OS_7")
+        load(self, vis, "KERNEL_8")
+        load(self, vis, "SUPERVISOR_9")
 
         if vis: vis.after_imports(self)
 
@@ -179,7 +207,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
                 self.root.word_does = copy.copy(self.tape["word_does"])
                 self.root.word_immediate = copy.copy(self.tape["word_immediate"])
 
-    def add_word(self, name, code, where=None):
+    def add_word(self, name, code, where=None, level=9):
         parts = name.lower().split("_")
         name = []
         meta = None
@@ -196,11 +224,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         name = "".join(name)
         where = where if where else self.root
 
-        #  if name in where:
-        #      raise ForthException(f"{name}: error(-4): Word Already Defined")
-
-        if name in where.word_immediate:
-            del where.word_immediate[name]
+        if name in where.words:
+            raise ForthException(f"{name}: error(-4): Word Already Defined")
 
         if not meta is None:
             if "i" in meta[0]:
@@ -215,7 +240,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
         return name
 
-    def add_sigil(self, name, code, where=None):
+    def add_sigil(self, name, code, where=None, level=9):
         parts = name.lower().split("_")
 
         name = []
@@ -243,7 +268,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
         return name
 
-    def import_lib(self, vis, source, where=None):
+    def import_lib(self, vis, source, where=None, level=9):
         word_names = []
         sigil_names = []
         for fname in dir(source):
@@ -277,14 +302,14 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         sigil_names.sort()
         for order, fname in sigil_names:
             code = getattr(source, fname)
-            tname = self.add_sigil(fname[6:], code)
+            tname = self.add_sigil(fname[6:], code, level=level)
             if not vis: continue
             vis.visit_sigil(code, fname, full2short(fname)[6:], tname)
 
         word_names.sort()
         for order, fname in word_names:
             code = getattr(source, fname)
-            tname = self.add_word(fname[5:], code)
+            tname = self.add_word(fname[5:], code, level=level)
             if not vis: continue
             vis.visit_word(code, fname, full2short(fname)[5:], tname)
 
@@ -537,8 +562,31 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.root.test["p"] += task.test["p"]
             self.root.test["f"] += task.test["f"]
 
+@define
+class PRIV(object):
+    level: int
+    saved: int = 0
 
-class TASK:
+    def __enter__(self):
+        self.saved = priv_level_var.get()
+        priv_level_var.set(self.level)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        priv_level_var.set(self.saved)
+
+@define
+class RING(object):
+    level: int
+
+    words: dict = Factory(dict)
+    word_argc: dict = Factory(dict)
+    word_does: dict = Factory(dict)
+    word_immediate: dict = Factory(dict)
+
+    sigils: dict = Factory(dict)
+
+class TASK(object):
     def __init__(self, engine, root=False, memory={}, stack=[]):
 
         self.engine = engine
@@ -574,7 +622,7 @@ class TASK:
         self.state = engine.state_INTERPRET
 
 
-class CALL:
+class CALL(object):
     def __init__(self, engine, parent=None):
         self.engine = engine
         self.parent = parent
@@ -608,25 +656,6 @@ class CALL:
             call = call.parent if call else None
 
         return block
-
-
-class ForthException(Exception):
-    pass
-
-
-class ForthSyntaxException(ForthException):
-    pass
-
-
-class ForthRuntimeException(ForthException):
-    pass
-
-class ForthSandboxException(ForthException):
-    pass
-
-import copy
-
-from decimal import Decimal
 
 __tests__ = {1: [], 2: [], 3: []}
 

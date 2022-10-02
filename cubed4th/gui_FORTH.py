@@ -199,7 +199,7 @@ async def async_ring_g(ide):
         while not ide.ring_g.root.memory["queue"].empty():
             command = ide.ring_g.root.memory["queue"].get()
             try:
-                engine = FORTH.Engine(run="", sandbox=9)
+                engine = FORTH.Engine(run="", sandbox=1)
                 engine.execute(command, include=True)
             except Exception as ex:
                 raise ex
@@ -207,7 +207,7 @@ async def async_ring_g(ide):
                 #print(repr(ex))
 
         jobs = dpg.get_callback_queue() # retrieves and clears queue
-       
+
         # taken from dpg.run_callbacks
         if not jobs is None:
             for job in jobs:
