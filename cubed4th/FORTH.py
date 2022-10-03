@@ -28,9 +28,9 @@ from decimal import Decimal
 from attrs import asdict, define, Factory
 import copy
 import contextvars
-import better_exceptions
 
-priv_level_var = contextvars.ContextVar('priv_level', default=1)
+engine_ring_var = contextvars.ContextVar('engine_ring', default=1)
+engine_ring_max_var = contextvars.ContextVar('engine_ring_max', default=2)
 
 class ForthException(Exception):
     pass
@@ -46,7 +46,7 @@ class ForthSandboxException(ForthException):
 
 class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
 
-    def __init__(self, run=None, run_tests=1, **kwargs):
+    def __init__(self, run=None, run_tests=0, **kwargs):
 
         stack = kwargs.get('stack', [])
         memory = kwargs.get('memory', {})
@@ -55,12 +55,15 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         self.call = CALL(self)
         self.tape = None
 
-        self.ring = []
+        self.rings = []
         for level in range(0,10):
-            self.ring.append(RING(level))
+            self.rings.append(RING(level))
 
-        self.priv_level_var = priv_level_var
-        self.priv_level_var.set(int(kwargs.get("priv", 1)))
+        self.engine_ring_var = engine_ring_var
+        self.engine_ring_var.set(int(kwargs.get("ring", 1)))
+
+        self.engine_ring_max_var = engine_ring_max_var
+        self.engine_ring_max_var.set(int(kwargs.get("ring_max", 2)))
 
         self.guards = kwargs.get('guards', "")
         if not run == None:
@@ -176,7 +179,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
     def poke(self, addr, value):
         self.root.memory[addr] = value
 
-    def save(self, save_memory=False, save_stack=False, save_words=True):
+    def save(self, save_memory=False, save_stack=False, save_words=True, save_rings=True):
         self.tape = {}
         if save_stack:
             self.tape["stack"] = copy.copy(self.root.stack)
@@ -187,6 +190,9 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.tape["word_argc"] = copy.copy(self.root.word_argc)
             self.tape["word_does"] = copy.copy(self.root.word_does)
             self.tape["word_immediate"] = copy.copy(self.root.word_immediate)
+
+        if save_rings:
+            self.tape["rings"] = copy.copy(self.rings)
 
         return self.tape
 
@@ -203,6 +209,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
                 self.root.word_argc = copy.copy(self.tape["word_argc"])
                 self.root.word_does = copy.copy(self.tape["word_does"])
                 self.root.word_immediate = copy.copy(self.tape["word_immediate"])
+            if 'rings' in self.tape:
+                self.rings = copy.copy(self.tape["rings"])
 
     def add_word(self, name, code, where=None, level=9):
         parts = name.lower().split("_")
@@ -560,17 +568,19 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.root.test["f"] += task.test["f"]
 
 @define
-class PRIV(object):
+class RING_CHANGE(object):
     level: int
     saved: int = 0
 
     def __enter__(self):
-        self.saved = priv_level_var.get()
-        priv_level_var.set(self.level)
+        if level > engine_ring_max_var.get():
+            raise ForthSandboxException("Cannot access ring above stated max")
+        self.saved = engine_ring_var.get()
+        engine_ring_var.set(self.level)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        priv_level_var.set(self.saved)
+        engine_ring_var.set(self.saved)
 
 @define
 class RING(object):

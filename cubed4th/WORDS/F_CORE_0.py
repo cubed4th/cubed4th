@@ -418,9 +418,20 @@ World
         c.stack.append({"?": ":", 0: 0, "state":t.state})
         t.state = LIB.state_COMPILE
 
+
+    @staticmethod  ### :? ###
+    def word_colon_qmark(e, t, c):
+        struct = c.find_struct(" : ")
+        if struct:
+            struct[" : "](e, t, c)
+            return
+
+        c.stack.append({"?": ":", 0: 0, "state":t.state, "push_name":True})
+        t.state = LIB.state_COMPILE
+
     @staticmethod  ### :NONAME ###
     def word_colon_NONAME__R(e, t, c):
-        c.stack.append({"?": ":", 0: 1, 1: [], "=": ""})
+        c.stack.append({"?": ":", "state":t.state, 0: 1, 1: [], "=": ""})
         t.state = LIB.state_COMPILE
 
 
@@ -505,8 +516,12 @@ World
                 if 2 in block:
                     t.word_does[block["="]] = block[2]
 
+        if block.get("push_name", False):
+            t.stack.append(block["="])
+
         #t.state = e.state_INTERPRET
         t.state = block["state"]
+
 
     @staticmethod
     def state_COMPILE_INTERPRET(e, t, c, token):
@@ -519,10 +534,9 @@ World
             block[0] = 1
             block[1] = []
             t.last_compile = token.lower()
-            if t.last_compile == "ulid-*":
+            if t.last_compile == "<unique>":
                 from ulid import ULID
-                t.last_compile = "ulid-" + str(ULID()).lower()[:-2] + "0u"
-                t.stack.append(t.last_compile)
+                t.last_compile = "u_" + str(ULID()).lower()[:-2] + "0u"
             block["="] = t.last_compile
             return
 

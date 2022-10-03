@@ -139,6 +139,14 @@ async def async_ring_g(ide):
         dpg.add_input_text(label="string", default_value="Quick brown fox")
         dpg.add_slider_float(label="float", default_value=0.273, max_value=1)
 
+    dpg.show_documentation()
+    #dpg.show_style_editor()
+    dpg.show_debug()
+    #dpg.show_about()
+    #dpg.show_metrics()
+    #dpg.show_font_manager()
+    dpg.show_item_registry()
+
     dpg.create_viewport(title='cubed4th IDE', width=1024, height=768, x_pos=10, y_pos=10)
     dpg.setup_dearpygui()
     dpg.show_viewport()
@@ -183,9 +191,6 @@ async def async_ring_g(ide):
         dpg.render_dearpygui_frame()
 
         await trio.sleep(0)
-
-    jobs = dpg.get_callback_queue() # retrieves and clears queue
-    dpg.run_callbacks(jobs)
 
     if running == -1:
         running = 0

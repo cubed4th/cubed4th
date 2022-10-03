@@ -24,7 +24,7 @@ __banner__ = r""" (
 
 """ # __banner__
 
-from ..FORTH import PRIV
+from ..FORTH import RING_CHANGE
 
 class LIB:  # { Operating System : words }
 
@@ -35,9 +35,9 @@ class LIB:  # { Operating System : words }
     def __init__(self, e, t, **kwargs):
         pass
 
-    @staticmethod  ### PRIV ###
-    def word_PRIV__R_s(e, t, c):
-        return (e.priv_level_var.get(),)
+    @staticmethod  ### RING ###
+    def word_RING__R_s(e, t, c):
+        return (e.this_ring_var.get(),)
 
     @staticmethod  ### )CPU: ###
     def sigil_rparen_CPU_colon(e, t, c, token, start=False):
@@ -46,12 +46,18 @@ class LIB:  # { Operating System : words }
         assert struct["?"] == "()"
 
         args = t.stack[struct["d"]:]
-        args.extend(tuple(struct.get("*",[])))
         t.stack = t.stack[:struct["d"]]
 
-        if struct["."] in ["ring"]:
-            with PRIV(args[0]):
-                e.execute_tokens(e, t, c, [token[5:]])
+        program = struct["."]
+        if program == "":
+            struct["."] = t.stack.pop()
+        if isinstance(program, str):
+            program = [program]
+
+        command = token[5:].lower()
+        if command == "ring":
+            with RING_CHANGE(int(args[0])):
+                e.execute_tokens(e, t, c, program)
             return
 
         if len(args) > 0:
@@ -59,6 +65,5 @@ class LIB:  # { Operating System : words }
             args = args[:-1]
         else:
             kwargs = {}
-            args = ()
 
 
