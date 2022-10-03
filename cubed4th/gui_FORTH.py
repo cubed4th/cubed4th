@@ -32,23 +32,6 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
 
         from queue import Queue
 
-        bootstrap_ring_k = """
-
-```
-
-    1 'process_id !
-
-```
-
-        """
-
-        # the ring_k is the kernel of the os
-        self.ring_k = FORTH.Engine(run=bootstrap_ring_k)
-
-        self.ring_k.root.memory["queue"] = Queue()
-        self.ring_k.root.memory["print"] = Queue()
-        self.ring_k.root.memory["debug"] = Queue()
-
 
         bootstrap_ring_g = """
 
@@ -70,10 +53,6 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
         # use stdin/stdout as the debging engine
         self.debug = FORTH.Engine(run, **kwargs)
 
-        self.debug.root.memory["debug"] = self.ring_k.root.memory["debug"]
-        self.debug.root.memory["print"] = self.ring_k.root.memory["print"]
-
-        self.debug.root.memory["queue_k"] = self.ring_k.root.memory["queue"]
         self.debug.root.memory["queue_g"] = self.ring_g.root.memory["queue"]
 
 
@@ -96,13 +75,6 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
         e.add_word("EXIT", S)
         e.add_word("EXIT()", S)
 
-        def D(e, t, c):
-            while not self.ring_k.root.memory["queue"].empty():
-                print("D> ", end="")
-                print(command)
-
-        e.add_word("D", D)
-
         v = ["cubed4th " + __version__]
         p, f = e.root.test["p"], e.root.test["f"]
         if p > 0:
@@ -115,8 +87,6 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
         print(" ".join(v))
         print("")
 
-        ring_k_queue = self.ring_k.root.memory["queue"]
-        ring_k_debug = self.ring_k.root.memory["debug"]
         ring_g_queue = self.ring_g.root.memory["queue"]
 
         global running
@@ -126,10 +96,7 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
             line = input("")
 
             import time
-            if line[0:3] == '!k ':
-                ring_k_queue.put(line[3:])
-                time.sleep(0.1)
-            elif line[0:3] == '!g ':
+            if line[0:3] == '!g ':
                 ring_g_queue.put(line[3:])
                 time.sleep(0.1)
             else:
@@ -138,6 +105,7 @@ class IDE:  # { The p-unity IDE: Intergrated Development Environment }
                 except Exception as ex:
                     print("!> ", end="")
                     print(repr(ex))
+                    #raise ex
 
             print()
             print("=>", end="")
@@ -154,23 +122,6 @@ async def janitor(ide):
     while running == -1:
         await trio.sleep(0.042)
 
-
-async def async_ring_k(ide):
-    count = 0
-    global running
-    while running == -1:
-        while not ide.ring_k.root.memory["queue"].empty():
-            command = ide.ring_k.root.memory["queue"].get()
-            print(f"KERNEL: {count} {repr(command)}")
-            count += 1
-            try:
-                ide.ring_k.execute(command, include=True)
-            except Exception as ex:
-                print("!! ", end="")
-                print(repr(ex))
-
-
-        await trio.sleep(0.042)
 
 async def async_ring_g(ide):
 
@@ -199,12 +150,12 @@ async def async_ring_g(ide):
         while not ide.ring_g.root.memory["queue"].empty():
             command = ide.ring_g.root.memory["queue"].get()
             try:
-                engine = FORTH.Engine(run="", sandbox=1)
+                engine = FORTH.Engine(run="")
                 engine.execute(command, include=True)
             except Exception as ex:
-                raise ex
-                #print("!! ", end="")
-                #print(repr(ex))
+                print("!! ", end="")
+                print(repr(ex))
+                #raise ex
 
         jobs = dpg.get_callback_queue() # retrieves and clears queue
 
@@ -220,6 +171,7 @@ async def async_ring_g(ide):
                     except Exception as ex:
                         print("!! ", end="")
                         print(repr(ex))
+                        #raise ex
                     continue
 
                 sig = inspect.signature(job[0])
@@ -244,7 +196,6 @@ async def async_ring_g(ide):
 async def trio_start(ide):
 
     async with trio.open_nursery() as nursery:
-        nursery.start_soon(async_ring_k, ide)
         nursery.start_soon(async_ring_g, ide)
         nursery.start_soon(janitor, ide)
 

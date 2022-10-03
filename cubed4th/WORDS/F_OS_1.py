@@ -39,8 +39,8 @@ class LIB:  # { Operating System : words }
     def word_PRIV__R_s(e, t, c):
         return (e.priv_level_var.get(),)
 
-    @staticmethod  ### )ACL: ###
-    def sigil_rparen_ACL_colon(e, t, c, token, start=False):
+    @staticmethod  ### )CPU: ###
+    def sigil_rparen_CPU_colon(e, t, c, token, start=False):
 
         struct = c.stack.pop()
         assert struct["?"] == "()"
@@ -49,6 +49,11 @@ class LIB:  # { Operating System : words }
         args.extend(tuple(struct.get("*",[])))
         t.stack = t.stack[:struct["d"]]
 
+        if struct["."] in ["ring"]:
+            with PRIV(args[0]):
+                e.execute_tokens(e, t, c, [token[5:]])
+            return
+
         if len(args) > 0:
             kwargs = args[-1]
             args = args[:-1]
@@ -56,7 +61,4 @@ class LIB:  # { Operating System : words }
             kwargs = {}
             args = ()
 
-        if struct["."] in ["ring"]:
-            with PRIV(args[0]):
-                e.execute_tokens(e, t, c, [token[5:]])
 

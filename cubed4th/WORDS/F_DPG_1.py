@@ -69,27 +69,44 @@ class LIB:  # { JavaScript Object Notation : words }
         args.extend(tuple(struct.get("*",[])))
         t.stack = t.stack[:struct["d"]]
 
-        if len(args) > 0:
+        if len(args) > 0 and isinstance(args[-1], dict):
             kwargs = args[-1]
             args = args[:-1]
         else:
             kwargs = {}
-            args = ()
 
-        kwargs["user_data"] = e
+        parts = struct["."].split("_")
 
-        import ulid
-        kwargs["tag"] = str(ulid.ULID())[:-4] + '0DPG'
+        if parts[0] == "add" and parts[-1] == "handler" and "callback" in kwargs:
+            command = kwargs["callback"]
+            def callback(sender, app_data, user_data):
+                user_data.execute(command, include=True)
+            kwargs["callback"] = callback
 
         import dearpygui.dearpygui as dpg
         code = getattr(dpg, struct["."])
+
+        if "tag" in code.__annotations__:
+            if not "tag" in kwargs:
+                import ulid
+                kwargs["tag"] = str(ulid.ULID())[:-4] + '0DPG'
+
+        if "user_data" in code.__annotations__:
+            kwargs["user_data"] = e
+
         result = code(*args, **kwargs)
+
         if do_result:
             t.stack.append(result)
 
 
     @staticmethod  ### )DPG: ###
     def sigil_rparen_DPG_colon(e, t, c, token, start=False):
+
+        do_result = False
+        if token[-1] == '?':
+            do_result = True
+            token = token[:-1]
 
         struct = c.stack.pop()
         assert struct["?"] == "()"
@@ -105,15 +122,21 @@ class LIB:  # { JavaScript Object Notation : words }
             kwargs = {}
             args = ()
 
-        import ulid
-        kwargs["tag"] = str(ulid.ULID())[:-4] + '0DPG'
-
-        if struct["."] in ["window"]:
-            kwargs["user_data"] = e
-            e.root.memory["window_tag"] = kwargs["tag"]
-
         import dearpygui.dearpygui as dpg
         code = getattr(dpg, struct["."])
-        with code(*args, **kwargs) as obj:
+
+        if "tag" in code.__annotations__:
+            if not "tag" in kwargs:
+                import ulid
+                kwargs["tag"] = str(ulid.ULID())[:-4] + '0DPG'
+
+        if "user_data" in code.__annotations__:
+            kwargs["user_data"] = e
+
+        with code(*args, **kwargs) as result:
             e.execute_tokens(e, t, c, [token[5:]])
+
+        if do_result:
+            t.stack.append(result)
+
 

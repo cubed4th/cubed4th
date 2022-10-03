@@ -28,6 +28,7 @@ from decimal import Decimal
 from attrs import asdict, define, Factory
 import copy
 import contextvars
+import better_exceptions
 
 priv_level_var = contextvars.ContextVar('priv_level', default=1)
 
@@ -59,11 +60,7 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             self.ring.append(RING(level))
 
         self.priv_level_var = priv_level_var
-
-        self.sandbox = priv_level_var.get()
-
-        with PRIV(2):
-            pass
+        self.priv_level_var.set(int(kwargs.get("priv", 1)))
 
         self.guards = kwargs.get('guards', "")
         if not run == None:
@@ -78,7 +75,6 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
         def load(self, vis, names):
             for name in names.split(" "):
                 level = int(name.split("_")[-1])
-                #if self.sandbox > 0 and self.sandbox < int(level): continue
                 exec(f"from .WORDS import F_{name}")
                 exec(f"self.{name} = F_{name}.LIB(self, self.root)")
                 exec(f"if vis: vis.before_import('{name}', self.{name})")
@@ -118,6 +114,8 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
     def raise_RuntimeError(self, details):
         raise ForthRuntimeException(details)
 
+    def raise_SandboxError(self, details):
+        raise ForthSandboxException(details)
 
     symbol_map = {
         "bang": "!",
@@ -171,7 +169,6 @@ class Engine:  # { The Reference Implementation of FORTH^3 : p-unity }
             return self.root.memory.get(attr, None)
 
         return impl
-
 
     def peek(self, addr, default=None):
         return self.root.memory.get(addr, default)
@@ -628,11 +625,6 @@ class CALL(object):
         self.parent = parent
         self.tokens = []
         self.depth = 0
-        if False and parent:
-            self.depth = parent.depth + 1
-            if self.depth >= 4:
-                raise ForthSandboxException("Call stack > 3 levels")
-
         self.stack = []
         self.EXIT = False
         self.FAIL = False

@@ -415,7 +415,7 @@ World
             struct[" : "](e, t, c)
             return
 
-        c.stack.append({"?": ":", 0: 0})
+        c.stack.append({"?": ":", 0: 0, "state":t.state})
         t.state = LIB.state_COMPILE
 
     @staticmethod  ### :NONAME ###
@@ -504,7 +504,8 @@ World
                 if 2 in block:
                     t.word_does[block["="]] = block[2]
 
-        t.state = e.state_INTERPRET
+        #t.state = e.state_INTERPRET
+        t.state = block["state"]
 
     @staticmethod
     def state_COMPILE_INTERPRET(e, t, c, token):
