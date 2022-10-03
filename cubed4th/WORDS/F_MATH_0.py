@@ -49,6 +49,9 @@ class LIB:  # { Mathematical : words }
         if isinstance(x1, list):
             return (x1 + [x2],)
 
+        if isinstance(x1, dict) and isinstance(x2, dict):
+            return ({**x1, **x2},)
+
         return (x1 + x2,)
 
 

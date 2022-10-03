@@ -423,6 +423,7 @@ World
         c.stack.append({"?": ":", 0: 1, 1: [], "=": ""})
         t.state = LIB.state_COMPILE
 
+
     @staticmethod  ### IM... ###
     def word_IM_dot_dot_dot__R(e, t, c):
         LIB.word_IMMEDIATE__R(e, t, c)
@@ -518,6 +519,10 @@ World
             block[0] = 1
             block[1] = []
             t.last_compile = token.lower()
+            if t.last_compile == "ulid-*":
+                from ulid import ULID
+                t.last_compile = "ulid-" + str(ULID()).lower()[:-2] + "0u"
+                t.stack.append(t.last_compile)
             block["="] = t.last_compile
             return
 
@@ -955,6 +960,7 @@ World
     def word_EXECUTE__R(e, t, c, xt):
 
         if not isinstance(xt, tuple):
+            if isinstance(xt, str): xt = [xt]
             e.execute_tokens(e, t, c, xt)
             return
 

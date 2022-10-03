@@ -53,6 +53,27 @@ class LIB:  # { The Object ABI : words }
     def word_lbrace_rbrace__R_d(e, t, c):
         return ({},)
 
+    @staticmethod  ### { ###
+    def word_lbrace__R(e, t, c):
+        c.stack.append({"?": "{", "d":len(t.stack)})
+
+    @staticmethod  ### } ###
+    def word_rbrace__R_d(e, t, c):
+
+        struct = c.stack.pop()
+        assert struct["?"] == "{"
+
+        args = t.stack[struct["d"]:]
+        t.stack = t.stack[:struct["d"]]
+
+        obj = {}
+        while len(args):
+            v = args.pop()
+            k = args.pop()
+            obj[k] = v
+
+        t.stack.append(obj)
+
     @staticmethod  ### PYTHON ###
     def word_PYTHON__R(e, t, c, s1):
 

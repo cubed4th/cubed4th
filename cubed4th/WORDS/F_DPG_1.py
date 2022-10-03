@@ -75,6 +75,10 @@ class LIB:  # { JavaScript Object Notation : words }
         else:
             kwargs = {}
 
+        if struct["."] == "":
+            struct["."] = args[0]
+            args = args[1:]
+
         parts = struct["."].split("_")
 
         if parts[0] == "add" and parts[-1] == "handler" and "callback" in kwargs:
@@ -103,9 +107,11 @@ class LIB:  # { JavaScript Object Notation : words }
     @staticmethod  ### )DPG: ###
     def sigil_rparen_DPG_colon(e, t, c, token, start=False):
 
-        do_result = False
+        token = token[5:]
+
+        return_result = False
         if token[-1] == '?':
-            do_result = True
+            return_result = True
             token = token[:-1]
 
         struct = c.stack.pop()
@@ -115,15 +121,19 @@ class LIB:  # { JavaScript Object Notation : words }
         args.extend(tuple(struct.get("*",[])))
         t.stack = t.stack[:struct["d"]]
 
-        if len(args) > 0:
+        kwargs = {}
+        if len(args) > 0 and isinstance(args[-1], dict):
             kwargs = args[-1]
             args = args[:-1]
-        else:
-            kwargs = {}
-            args = ()
+
+        if struct["."] == "":
+            struct["."] = args[0]
+            args = args[1:]
+        elif struct["."] == "-":
+            struct["."] = t.stack.pop()
 
         import dearpygui.dearpygui as dpg
-        code = getattr(dpg, struct["."])
+        code = getattr(dpg, token)
 
         if "tag" in code.__annotations__:
             if not "tag" in kwargs:
@@ -134,9 +144,9 @@ class LIB:  # { JavaScript Object Notation : words }
             kwargs["user_data"] = e
 
         with code(*args, **kwargs) as result:
-            e.execute_tokens(e, t, c, [token[5:]])
+            e.execute_tokens(e, t, c, [struct["."]])
 
-        if do_result:
+        if return_result:
             t.stack.append(result)
 
 
