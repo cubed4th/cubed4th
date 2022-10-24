@@ -38,14 +38,13 @@ setuptools.setup(
     name="cubed4th",
     version=__version__,
     author="Scott McCallum <https://linkedin.com/in/scott-mccallum>",
-    author_email="cubed4th@HQ.UrbaneInter.net",
+    author_email="Scott@Urbane.eMail",
     description=": cubed4th 'PYTHON 'FORTH 'OOP + * 3 ^ ;",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/sno-ware/cubed4th",
     packages=setuptools.find_packages(),
     install_requires=[
-        "simplejson"
     ],
     entry_points={"console_scripts": ["c4=cubed4th.cli_FORTH:ide_stdio"]},
     classifiers=[

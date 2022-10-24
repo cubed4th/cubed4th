@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2021 - 2021, Scott.McCallum@HQ.UrbaneINTER.NET
+# Copyright (c) 2021 - 2022, Scott.McCallum@HQ.UrbaneINTER.NET
 
 __banner__ = r""" (
 
