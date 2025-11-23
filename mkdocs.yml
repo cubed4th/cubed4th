@@ -1,0 +1,52 @@
+site_name: cubed4th
+repo_url: https://github.com/scott91e1/cubed4th
+site_url: https://scott91e1.github.io/cubed4th
+site_description: FORTH on Python
+site_author: Scott McCallum
+edit_uri: edit/main/docs/
+repo_name: scott91e1/cubed4th
+copyright: Maintained by <a href="https://scott91e1.com">scott91e1</a>.
+
+nav:
+  - Home: index.md
+  - Modules: modules.md
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["cubed4th"]
+theme:
+  name: material
+  feature:
+    tabs: true
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/scott91e1/cubed4th
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/cubed4th
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true

@@ -1,0 +1,11 @@
+,   ( n - ) Compile a number into the dictionary. "comma"
+ALLOT   ( n *- )    Add two bytes to the parameter field of the most recently-defined word.
+."  ( - )   Print message (terminated by"). If used in definition, print when executed. "dot-quote"
+IMMEDIATE   ( - )   Mark last-defined word to be executed when encountered in a definition, rather than compiled.
+LITERAL ( n - ) If compiling, save n in dictionary, to be returned to stack when definition is executed.
+STATE   ( v- addr ) System variable whose value is non-zero when compiliation is occuring.
+[   ( - )   Stop compiling input text and begin executing. "left-bracket"
+]   ( - )   Stop executing input text and begin compiling. "right-bracket"
+COMPILE ( - )   Compile the address of the next non-IMMEDIATE word into the dictionary.
+[COMPILE]   ( - )   Compile the following word, even if immediate. "bracket-complie"
+
